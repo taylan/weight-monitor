@@ -1,0 +1,6 @@
+dbconfig:
+  DBSERVER: --
+  DBNAME: --
+  DBUSER: --
+  DBPASS: --
+  DBPORT: 5432
