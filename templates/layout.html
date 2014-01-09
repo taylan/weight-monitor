@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+<head>
+    <title>Weight Monitor</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+{#    <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon.png') }}">#}
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/pickadate.css') }}">
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/pickadate.date.css') }}">
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/weight-monitor.css') }}">
+</head>
+<body>
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="/"><span class="glyphicon glyphicon-music"></span> Weight Monitor</a>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    {% block body %}{% endblock %}
+</div>
+<!-- /.container -->
+
+<script type="text/javascript" src="{{ url_for('static', filename='js/jquery-2.0.3.min.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/picker.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/picker.date.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/weight-monitor.js') }}"></script>
+</body>
+</html>
