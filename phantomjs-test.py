@@ -4,9 +4,9 @@ from sys import platform
 
 
 phantomjs_paths ={
-    'win32': 'bin/phantomjs-win32/phantomjs.exe',
-    'darwin': 'bin/phantomjs-darwin/bin/phantomjs',
-    'linux': 'bin/phantomjs-linux/bin/phantomjs'
+    'win32': 'lib/phantomjs/phantomjs-win32/phantomjs.exe',
+    'darwin': 'lib/phantomjs/phantomjs-darwin/bin/phantomjs',
+    'linux': 'lib/phantomjs/phantomjs-linux/bin/phantomjs'
 }
 
 
