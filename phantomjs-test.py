@@ -18,6 +18,6 @@ print(exe_path)
 print('{0} {1} '.format(exe_path, path.join(path.dirname(path.realpath(__file__)), 'phantomjs-test.js')).split(' '))
 
 print('starting')
-pjs_proc = Popen('{0} {1}'.format(exe_path, path.join(path.dirname(path.realpath(__file__)), 'phantomjs-test.js')).split(' '))
+pjs_proc = Popen('{0} {1}'.format(exe_path, path.join(path.dirname(path.realpath(__file__)), 'phantomjs-test.js')).split(' '), shell=True)
 pjs_proc.wait()
 print('done')
