@@ -14,6 +14,8 @@ phantomjs_path = phantomjs_paths.get(platform, '')
 if not phantomjs_path:
     print('No PhantomJS executable defined for platform {0}.'.format(platform))
 exe_path = path.join(path.dirname(path.realpath(__file__)), phantomjs_path)
+print(exe_path)
+print('{0} phantomjs-test.js'.format(exe_path))
 
 print('starting')
 pjs_proc = Popen('{0} phantomjs-test.js'.format(exe_path))
