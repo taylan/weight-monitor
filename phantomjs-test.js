@@ -1,5 +1,9 @@
+console.log('a');
 var page = require('webpage').create();
-page.open('http://github.com/', function() {
-  page.render('github.png');
-  phantom.exit();
+console.log('b');
+page.open('http://github.com/', function () {
+    page.render('github.png');
+    console.log('c');
+    phantom.exit();
 });
+console.log('d');
