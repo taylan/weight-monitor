@@ -10,7 +10,7 @@ phantomjs_paths ={
     'linux': 'lib/phantomjs/phantomjs-linux/phantomjs'
 }
 
-call(['chmod', '+x', 'lib/phantomjs/phantomjs-linux/phantomjs'])
+call(['chmod', '+x', '/app/lib/phantomjs/phantomjs-linux/phantomjs'])
 
 phantomjs_path = phantomjs_paths.get(platform, '')
 if not phantomjs_path:
