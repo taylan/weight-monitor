@@ -10,8 +10,7 @@ phantomjs_paths ={
     'linux': 'lib/phantomjs/phantomjs-linux/phantomjs'
 }
 
-call(['/usr/bin/id'])
-print(getuid())
+call(['chmod', '+x', 'lib/phantomjs/phantomjs-linux/phantomjs'])
 
 phantomjs_path = phantomjs_paths.get(platform, '')
 if not phantomjs_path:
