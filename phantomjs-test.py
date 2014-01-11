@@ -1,6 +1,7 @@
-from subprocess import Popen
-from os import path
+from subprocess import Popen, call
+from os import path, getuid
 from sys import platform
+
 
 
 phantomjs_paths ={
@@ -9,6 +10,8 @@ phantomjs_paths ={
     'linux': 'lib/phantomjs/phantomjs-linux/phantomjs'
 }
 
+call(['/usr/bin/id'])
+print(getuid())
 
 phantomjs_path = phantomjs_paths.get(platform, '')
 if not phantomjs_path:
