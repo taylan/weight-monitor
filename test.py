@@ -3,6 +3,7 @@ from os import path
 from sys import platform
 
 
+
 exe_name = 'phantomjs-{0}'.format(platform)
 exe_path = path.join(path.dirname(path.realpath(__file__)), exe_name)
 
@@ -14,3 +15,5 @@ print(params)
 pjs_proc = Popen(params)
 pjs_proc.wait()
 print('done')
+
+print('fuhu!' if path.exists('github.png') else 'fuk!')
