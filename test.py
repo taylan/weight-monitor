@@ -12,7 +12,7 @@ call(['chmod', '+x', exe_path])
 dest_file_name = '{0}.png'.format(uuid4())
 
 print('starting')
-params = '{0} {1} {2}'.format(exe_path, 'phantomjs-test.js', dest_file_name).split(' ')
+params = '{0} {1} {2} {3}'.format(exe_path, 'phantomjs-test.js', 'chart_template.html', dest_file_name).split(' ')
 print(params)
 pjs_proc = Popen(params)
 pjs_proc.wait()
