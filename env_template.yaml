@@ -4,3 +4,8 @@ dbconfig:
   DBUSER: --
   DBPASS: --
   DBPORT: 5432
+
+s3config:
+  S3KEY: --
+  S3SECRET: --
+  S3BUCKET: --
