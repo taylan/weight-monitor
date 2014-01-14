@@ -6,12 +6,41 @@ from orm import dbsession, Measurement
 from sqlalchemy import desc
 
 
+report_graph_template = """<table class='row'
+                                   style='border-spacing: 0; border-collapse: collapse; vertical-align: top; text-align: left; width: 100%; position: relative; display: block; padding: 0px;'>
+                                <tr style='vertical-align: top; text-align: left; padding: 0;' align='left'>
+                                    <td class='wrapper last'
+                                        style='word-break: break-word; -webkit-hyphens: auto; -moz-hyphens: auto; hyphens: auto; border-collapse: collapse !important; vertical-align: top; text-align: left; position: relative; color: #222222; font-family: sans-serif; font-weight: normal; line-height: 19px; font-size: 14px; margin: 0; padding: 10px 0px 0px;'
+                                        align='left' valign='top'>
+
+                                        <table class='twelve columns'
+                                               style='border-spacing: 0; border-collapse: collapse; vertical-align: top; text-align: left; width: 580px; margin: 0 auto; padding: 0;'>
+                                            <tr style='vertical-align: top; text-align: left; padding: 0;' align='left'>
+                                                <td style='word-break: break-word; -webkit-hyphens: auto; -moz-hyphens: auto; hyphens: auto; border-collapse: collapse !important; vertical-align: top; text-align: left; color: #222222; font-family: sans-serif; font-weight: normal; line-height: 19px; font-size: 14px; margin: 0; padding: 0px 0px 10px;'
+                                                    align='left' valign='top'>
+
+                                                    <h4 style='color: #222222; font-family: sans-serif; font-weight: normal; text-align: left; line-height: 1.3; word-break: normal; font-size: 28px; margin: 0; padding: 0;'
+                                                        align='left'>[PERIOD]</h4>
+                                                    <img width='580' height='300' src='https://s3.amazonaws.com/ta-weightmon-chart-images/[IMAGE_NAME]'
+                                                         style='outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; width: auto; max-width: 100%; float: left; clear: both; display: block;'
+                                                         align='left'/></td>
+                                                <td class='expander'
+                                                    style='word-break: break-word; -webkit-hyphens: auto; -moz-hyphens: auto; hyphens: auto; border-collapse: collapse !important; vertical-align: top; text-align: left; visibility: hidden; width: 0px; color: #222222; font-family: sans-serif; font-weight: normal; line-height: 19px; font-size: 14px; margin: 0; padding: 0;'
+                                                    align='left' valign='top'></td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>"""
+
+
 exe_name = '_phantomjs-{0}{1}'.format(platform, '.exe' if platform == 'win32' else '')
 exe_path = path.join(path.dirname(path.realpath(__file__)), exe_name)
 if platform != 'win32':
     call(['chmod', '+x', exe_path])
 
-dest_timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S_%f')
+now = datetime.now()
+dest_timestamp = now.strftime('%Y-%m-%d_%H-%M-%S_%f')
 
 periods = {7: 'Last Week', 30: 'Last Month', 365: 'Last Year', 100000: 'All Time'}
 
@@ -46,4 +75,18 @@ for p in periods.keys():
     print('P: {0} complete'.format(p))
     remove(chart_file_name)
     remove(chart_img_name)
+
+with open(path.join(path.dirname(path.realpath(__file__)), 'notification_mail_template.html')) as notif_tpl:
+    template = notif_tpl.read()
+
+graphs = []
+for p in sorted(periods.keys()):
+    chart_img_name = '{0}_{1}.png'.format(dest_timestamp, p)
+    graphs.append(report_graph_template.replace('[PERIOD]', periods[p]).replace('[IMAGE_NAME]', chart_img_name))
+
+with open(path.join(path.dirname(path.realpath(__file__)), '{0}_mail.html'.format(dest_timestamp)), mode='w') as mail_content:
+    mail_content.write(template.replace('[REPORT_DATE]', now.strftime('%Y-%m-%d')).replace('[GRAPHS]', '\n'.join(graphs)))
+
+# TODO: send mail
+# TODO: delete mail parameter json file
 
