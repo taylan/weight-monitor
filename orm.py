@@ -2,7 +2,7 @@ from sqlalchemy import create_engine, Column, DateTime, Float, Integer
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from config import initialize_config, is_debug
-from os import environ
+from os import environ, path
 
 initialize_config()
 
@@ -35,11 +35,11 @@ if is_debug() and dbsession.query(Measurement).count() == 0:
     from operator import itemgetter
 
     wd = []
-    with open('weight-data/myfitnesspal-weight-data.json') as mfp_file:
+    with open(path.join(path.dirname(path.realpath(__file__)), 'weight-data/myfitnesspal-weight-data.json')) as mfp_file:
         mfp_data = loads(mfp_file.read())
         [wd.append({'total': x['total'], 'date': datetime.strptime('2013-{0}-{1}'.format(x['date'].split('/')[0], x['date'].split('/')[1]), '%Y-%m-%d')}) for x in mfp_data['data'] if x['total'] != 0]
 
-    with open('weight-data/weightbot_data.csv') as wb_file:
+    with open(path.join(path.dirname(path.realpath(__file__)), 'weight-data/weightbot_data.csv')) as wb_file:
         wb_data = wb_file.read().splitlines()
         [wd.append({'total': float(x.split(',')[1].strip()), 'date': datetime.strptime(x.split(',')[0], '%Y-%m-%d')}) for x in wb_data]
 

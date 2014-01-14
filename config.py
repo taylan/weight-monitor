@@ -14,7 +14,7 @@ def is_debug():
 
 
 def initialize_config(config_file_name='env.yaml'):
-    config_keys = ['DBSERVER', 'DBNAME', 'DBUSER', 'DBPASS', 'DBPORT', 'S3KEY', 'S3SECRET', 'S3BUCKET']
+    config_keys = ['DBSERVER', 'DBNAME', 'DBUSER', 'DBPASS', 'DBPORT', 'S3KEY', 'S3SECRET', 'S3BUCKET', 'S3REGION']
     if contains(config_keys, list(environ.keys())):
         environ['DEBUG'] = 'False'
         return
@@ -30,3 +30,7 @@ def initialize_config(config_file_name='env.yaml'):
         environ.update(config['dbconfig'])
         environ.update(config['s3config'])
         environ['DEBUG'] = 'True'
+
+        environ['AWS_DEFAULT_REGION'] = environ['S3REGION']
+        environ['AWS_ACCESS_KEY_ID'] = environ['S3KEY']
+        environ['AWS_SECRET_ACCESS_KEY'] = environ['S3SECRET']
