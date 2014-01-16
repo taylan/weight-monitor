@@ -29,20 +29,11 @@ Session.configure(bind=engine)
 dbsession = Session()
 Base.metadata.create_all(engine)
 
-if is_debug() and dbsession.query(Measurement).count() == 0:
-    from json import loads
-    from datetime import datetime
+if dbsession.query(Measurement).count() == 0:
+    print('Measurement table is empty. Filling with data from Weightbot and MyFitnessPal.')
     from operator import itemgetter
+    from utils.weightdataloader import get_weight_data
 
-    wd = []
-    with open(path.join(path.dirname(path.realpath(__file__)), 'weight-data/myfitnesspal-weight-data.json')) as mfp_file:
-        mfp_data = loads(mfp_file.read())
-        [wd.append({'total': x['total'], 'date': datetime.strptime('2013-{0}-{1}'.format(x['date'].split('/')[0], x['date'].split('/')[1]), '%Y-%m-%d')}) for x in mfp_data['data'] if x['total'] != 0]
-
-    with open(path.join(path.dirname(path.realpath(__file__)), 'weight-data/weightbot_data.csv')) as wb_file:
-        wb_data = wb_file.read().splitlines()
-        [wd.append({'total': float(x.split(',')[1].strip()), 'date': datetime.strptime(x.split(',')[0], '%Y-%m-%d')}) for x in wb_data]
-
-    for d in sorted(wd, key=itemgetter('date')):
+    for d in sorted(get_weight_data(), key=itemgetter('date')):
         dbsession.add(Measurement(measurement_date=d['date'], value=d['total']))
     dbsession.commit()
