@@ -38,6 +38,7 @@ report_graph_template = """<table class='row'
 exe_name = '_phantomjs-{0}{1}'.format(platform, '.exe' if platform == 'win32' else '')
 exe_path = path.join(path.dirname(path.realpath(__file__)), exe_name)
 if platform != 'win32':
+    print('chmod!')
     call(['chmod', '+x', exe_path])
 
 now = datetime.now()
@@ -47,8 +48,9 @@ periods = {7: 'Last Week', 30: 'Last Month', 365: 'Last Year', 100000: 'All Time
 
 
 def _execute_command(params):
+    print('executing command', params)
     params = params.split(' ') if isinstance(params, str) else params
-    proc = Popen(params, shell=True)
+    proc = Popen(params, shell=(platform == 'win32'))
     proc.wait()
 
 
@@ -87,17 +89,19 @@ for p in sorted(periods.keys()):
 
 short_timestamp = now.strftime('%Y-%m-%d')
 mail_content = template.replace('[REPORT_DATE]', short_timestamp).replace('[GRAPHS]', '\n'.join(graphs))
-#with open(path.join(path.dirname(path.realpath(__file__)), '{0}_mail.html'.format(dest_timestamp)), mode='w') as mail_content:
-#    mail_content.write(template.replace('[REPORT_DATE]', short_timestamp).replace('[GRAPHS]', '\n'.join(graphs)))
+#with open(path.join(path.dirname(path.realpath(__file__)), '{0}_mail.html'.format(dest_timestamp)), mode='w') as mail_cont:
+#    mail_cont.write(mail_content)
 
 mail_data = dict()
 mail_data['Subject'] = {'Data': 'Weight Monitor Report for {0}'.format(short_timestamp), 'Charset': 'UTF-8'}
-mail_data['Html'] = {'Data': mail_content, 'Charset': 'UTF-8'}
+mail_data['Body'] = {'Html': {'Data': mail_content, 'Charset': 'UTF-8'}}
 
-with open(path.join(path.dirname(path.realpath(__file__)), '{0}_mail.json'.format(dest_timestamp)), mode='w') as mail_content_json:
+mail_json_file_name = path.join(path.dirname(path.realpath(__file__)), '{0}_mail.json'.format(dest_timestamp))
+with open(mail_json_file_name, mode='w') as mail_content_json:
     mail_content_json.write(dumps(mail_data))
 
+_execute_command('aws ses send-email --from monitorweight@gmail.com --destination {0} --message {1}'
+    .format('file://' + path.join(path.dirname(path.realpath(__file__)), 'notification-mail-recipients.json'),
+            'file://' + mail_json_file_name))
 
-# TODO: send mail
-# TODO: delete mail parameter json file
-
+remove(mail_json_file_name)
