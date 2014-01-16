@@ -4,6 +4,7 @@ from sys import platform
 from datetime import datetime
 from orm import dbsession, Measurement
 from sqlalchemy import desc
+from json import dumps
 
 
 report_graph_template = """<table class='row'
@@ -84,8 +85,18 @@ for p in sorted(periods.keys()):
     chart_img_name = '{0}_{1}.png'.format(dest_timestamp, p)
     graphs.append(report_graph_template.replace('[PERIOD]', periods[p]).replace('[IMAGE_NAME]', chart_img_name))
 
-with open(path.join(path.dirname(path.realpath(__file__)), '{0}_mail.html'.format(dest_timestamp)), mode='w') as mail_content:
-    mail_content.write(template.replace('[REPORT_DATE]', now.strftime('%Y-%m-%d')).replace('[GRAPHS]', '\n'.join(graphs)))
+short_timestamp = now.strftime('%Y-%m-%d')
+mail_content = template.replace('[REPORT_DATE]', short_timestamp).replace('[GRAPHS]', '\n'.join(graphs))
+#with open(path.join(path.dirname(path.realpath(__file__)), '{0}_mail.html'.format(dest_timestamp)), mode='w') as mail_content:
+#    mail_content.write(template.replace('[REPORT_DATE]', short_timestamp).replace('[GRAPHS]', '\n'.join(graphs)))
+
+mail_data = dict()
+mail_data['Subject'] = {'Data': 'Weight Monitor Report for {0}'.format(short_timestamp), 'Charset': 'UTF-8'}
+mail_data['Html'] = {'Data': mail_content, 'Charset': 'UTF-8'}
+
+with open(path.join(path.dirname(path.realpath(__file__)), '{0}_mail.json'.format(dest_timestamp)), mode='w') as mail_content_json:
+    mail_content_json.write(dumps(mail_data))
+
 
 # TODO: send mail
 # TODO: delete mail parameter json file
