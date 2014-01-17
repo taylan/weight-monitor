@@ -1,17 +1,17 @@
 {% extends "layout.html" %}
 {% block body %}
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 text-center weight-form">
-        <form role="form">
+        <form role="form" method="post" id="weight-form" action="{{ url_for('save_measurement') }}">
             <div class="form-group">
                 <label for="input-date">Date</label>
-                <input type="text" class="form-control" id="input-date" placeholder="Enter date"
+                <input type="text" class="form-control" id="input-date" name="d" placeholder="Enter date"
                        data-value="{{ now.strftime('%Y-%m-%d') }}">
             </div>
             <div class="form-group">
                 <label for="weight">Weight</label>
-                <input type="text" class="form-control" id="weight" placeholder="Weight">
+                <input type="text" class="form-control" id="weight" name="v" placeholder="Weight">
             </div>
-            <button type="submit" class="btn btn-primary">Submit</button>
+            <button type="submit" id="submit-button" class="btn btn-primary">Submit</button>
         </form>
     </div>
     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 col-lg-offset-3 col-md-offset-3 col-sm-offset-3 text-center">
