@@ -27,11 +27,14 @@
     padding: 8px 15px;
 }
 
-
 @media (max-width: 767px) {
     .navbar-brand {
         font-size: 12px;
         padding: 4px 15px;
+    }
+
+    .navbar-inverse .navbar-brand {
+        color: #fff;
     }
 
     .navbar-header {
@@ -49,6 +52,7 @@
         float: right;
         margin: 0 -15px;
     }
+
     .navbar-nav .open .dropdown-menu {
         position: absolute;
         min-width: 0;
@@ -57,11 +61,10 @@
         left: auto;
     }
 
-    .navbar-nav .open .dropdown-menu>li>a {
+    .navbar-nav .open .dropdown-menu > li > a {
         padding: 3px 15px;
     }
 }
-
 
 #chart-container {
     height: 400px;

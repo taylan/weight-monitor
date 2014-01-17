@@ -1,7 +1,7 @@
 function saveWeight(u, d) {
     $.post(u, d)
         .done(function(data) {
-            console.log('save done', data)
+            console.log('save done', data);
         });
 }
 
