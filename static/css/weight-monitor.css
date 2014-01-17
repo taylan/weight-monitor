@@ -22,3 +22,10 @@
 .editableform .form-control {
     width: 80px;
 }
+
+@media(max-width:767px){
+    .navbar-brand {
+        font-size: 12px;
+        padding: 4px 15px;
+    }
+}
