@@ -17,7 +17,7 @@
     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 col-lg-offset-3 col-md-offset-3 col-sm-offset-3 text-center">
         <table class="table weight-table table-striped table-condensed">
             <tr>
-                <th colspan="3">Last 7 days <small class="text-muted">(Diff: {{ "%.1f"|format(total_diff) }} kg)</small></th>
+                <th colspan="3">Last 7 days <small class="text-muted">(Diff: {{ "%+.1f"|format(total_diff) }} kg)</small></th>
             </tr>
             <tr>
                 <th>Date</th>
@@ -29,7 +29,7 @@
                     <td>{{ m.measurement_date.strftime('%Y-%m-%d') }}</td>
                     <td><a href="#" data-type="text" class="weight-value " data-pk="{{ m.measurement_date.strftime('%Y-%m-%d') }}">{{ "%.1f"|format(m.value) }}</a> kg</td>
                     <td class="{{ 'text-warning' if m.diff == 0 else ('text-success' if m.diff < 0 else 'text-danger') }}">
-                        <span class="glyphicon glyphicon-{{ 'refresh' if m.diff == 0 else ('chevron-down' if m.diff < 0 else 'chevron-up') }}"></span> {{ "%.1f"|format(m.diff) }} kg</td>
+                        <span class="glyphicon glyphicon-{{ 'refresh' if m.diff == 0 else ('chevron-down' if m.diff < 0 else 'chevron-up') }}"></span> {{ "%+.1f"|format(m.diff) }} kg</td>
                 </tr>
             {% endfor %}
         </table>
