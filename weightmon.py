@@ -3,6 +3,7 @@ from config import is_debug
 from flask import Flask, render_template, request, send_from_directory, jsonify, redirect
 from datetime import datetime
 from werkzeug.exceptions import HTTPException
+from utils.measurement_data import MeasurementData
 
 app = Flask(__name__)
 app.jinja_env.globals['now'] = datetime.now()
@@ -35,7 +36,9 @@ def save_measurement():
 def index():
     last_7_days = dbsession.query(Measurement).order_by(Measurement.measurement_date.desc()).limit(7).all()
     _calculate_diffs(last_7_days)
-    return render_template('index.html', last_7_days=last_7_days, total_diff=(last_7_days[0].value - last_7_days[-1].value))
+    md = MeasurementData('Last 7 Days', last_7_days)
+
+    return render_template('index.html', measurement_data=md)
 
 
 if __name__ == '__main__':
