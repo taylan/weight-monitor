@@ -1,6 +1,6 @@
 from orm import dbsession, Measurement
 from config import is_debug
-from flask import Flask, render_template, request, send_from_directory, jsonify, redirect
+from flask import Flask, render_template, request, jsonify, redirect
 from datetime import datetime
 from werkzeug.exceptions import HTTPException
 from utils.measurement_data import MeasurementData
