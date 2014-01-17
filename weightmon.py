@@ -5,8 +5,13 @@ from datetime import datetime
 from werkzeug.exceptions import HTTPException
 from utils.measurement_data import MeasurementData
 
+period_lengths = {'last-week': 7, 'last-month': 30, 'last-year': 365, 'all-time': 100000}
+period_titles = {7: 'Last Week', 30: 'Last Month', 365: 'Last Year', 100000: 'All Time'}
+
 app = Flask(__name__)
 app.jinja_env.globals['now'] = datetime.now()
+app.jinja_env.globals['period_lengths'] = period_lengths
+app.jinja_env.globals['period_titles'] = period_titles
 
 
 def _calculate_diffs(measurements):
@@ -33,10 +38,12 @@ def save_measurement():
 
 
 @app.route('/', methods=['GET'])
-def index():
-    last_7_days = dbsession.query(Measurement).order_by(Measurement.measurement_date.desc()).limit(7).all()
-    _calculate_diffs(last_7_days)
-    md = MeasurementData('Last 7 Days', last_7_days)
+@app.route('/p/<period>', methods=['GET'])
+def index(period='last-week'):
+    p = period_lengths.get(period, 7)
+    ms = dbsession.query(Measurement).order_by(Measurement.measurement_date.desc()).limit(p).all()
+    _calculate_diffs(ms)
+    md = MeasurementData(period_titles[p], ms)
 
     return render_template('index.html', measurement_data=md)
 
