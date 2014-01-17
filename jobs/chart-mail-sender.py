@@ -22,9 +22,10 @@ report_graph_template = """<table class='row'
 
                                                     <h4 style='color: #222222; font-family: sans-serif; font-weight: normal; text-align: left; line-height: 1.3; word-break: normal; font-size: 28px; margin: 0; padding: 0;'
                                                         align='left'>[PERIOD]</h4>
+                                                    <a href='https://s3.amazonaws.com/ta-weightmon-chart-images/[IMAGE_NAME]'>
                                                     <img width='580' height='300' src='https://s3.amazonaws.com/ta-weightmon-chart-images/[IMAGE_NAME]'
                                                          style='outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; width: auto; max-width: 100%; float: left; clear: both; display: block;'
-                                                         align='left'/></td>
+                                                         align='left'/></a></td>
                                                 <td class='expander'
                                                     style='word-break: break-word; -webkit-hyphens: auto; -moz-hyphens: auto; hyphens: auto; border-collapse: collapse !important; vertical-align: top; text-align: left; visibility: hidden; width: 0px; color: #222222; font-family: sans-serif; font-weight: normal; line-height: 19px; font-size: 14px; margin: 0; padding: 0;'
                                                     align='left' valign='top'></td>
@@ -88,9 +89,11 @@ for p in sorted(periods.keys()):
     graphs.append(report_graph_template.replace('[PERIOD]', periods[p]).replace('[IMAGE_NAME]', chart_img_name))
 
 short_timestamp = now.strftime('%Y-%m-%d')
-mail_content = template.replace('[REPORT_DATE]', short_timestamp).replace('[GRAPHS]', '\n'.join(graphs))
-#with open(path.join(path.dirname(path.realpath(__file__)), '{0}_mail.html'.format(dest_timestamp)), mode='w') as mail_cont:
-#    mail_cont.write(mail_content)
+full_report_file_name = '{0}_mail.html'.format(dest_timestamp)
+mail_content = template.replace('[REPORT_DATE]', short_timestamp).replace('[GRAPHS]', '\n'.join(graphs)).replace('[FULL_REPORT_NAME]', full_report_file_name)
+with open(path.join(path.dirname(path.realpath(__file__)), full_report_file_name), mode='w') as mail_cont:
+    mail_cont.write(mail_content)
+_copy_file_to_s3(full_report_file_name)
 
 mail_data = dict()
 mail_data['Subject'] = {'Data': 'Weight Monitor Report for {0}'.format(short_timestamp), 'Charset': 'UTF-8'}
@@ -104,4 +107,5 @@ _execute_command('aws ses send-email --from monitorweight@gmail.com --destinatio
     .format('file://' + path.join(path.dirname(path.realpath(__file__)), 'notification-mail-recipients.json'),
             'file://' + mail_json_file_name))
 
+remove(full_report_file_name)
 remove(mail_json_file_name)
