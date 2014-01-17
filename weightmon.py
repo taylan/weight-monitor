@@ -7,6 +7,15 @@ app = Flask(__name__)
 app.jinja_env.globals['now'] = datetime.now()
 
 
+def _calculate_diffs(measurements):
+    for i, m in reversed(list(enumerate(measurements))):
+        print(i, m)
+        if i == len(measurements)-1:
+            m.diff = 0
+        else:
+            m.diff = m.value - measurements[i+1].value
+
+
 @app.route('/save', methods=['POST'])
 def save_measurement():
     print(request.headers)
@@ -25,7 +34,8 @@ def save_measurement():
 
 @app.route('/', methods=['GET'])
 def index():
-    last_7_days = dbsession.query(Measurement).order_by(Measurement.measurement_date.desc()).limit(7)
+    last_7_days = dbsession.query(Measurement).order_by(Measurement.measurement_date.desc()).limit(7).all()
+    _calculate_diffs(last_7_days)
     return render_template('index.html', last_7_days=last_7_days)
 
 
