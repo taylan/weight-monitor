@@ -13,3 +13,12 @@
 .navbar-brand {
     padding: 8px 15px;
 }
+
+.weight-value {
+    border-bottom: 0 !important;
+    color: inherit;
+}
+
+.editableform .form-control {
+    width: 80px;
+}
