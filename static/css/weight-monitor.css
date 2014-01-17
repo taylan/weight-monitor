@@ -5,3 +5,11 @@
 .weight-table th {
     text-align: center;
 }
+
+.navbar {
+    min-height: 0;
+}
+
+.navbar-brand {
+    padding: 8px 15px;
+}
