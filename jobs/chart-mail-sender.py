@@ -1,10 +1,11 @@
-from subprocess import Popen, call
+from subprocess import call
 from os import path, remove
 from sys import platform
 from datetime import datetime
 from orm import dbsession, Measurement
 from sqlalchemy import desc
 from json import dumps
+from utils.utils import execute_command, copy_file_to_s3
 
 
 report_graph_template = """<table class='row'
@@ -39,24 +40,12 @@ report_graph_template = """<table class='row'
 exe_name = '_phantomjs-{0}{1}'.format(platform, '.exe' if platform == 'win32' else '')
 exe_path = path.join(path.dirname(path.realpath(__file__)), exe_name)
 if platform != 'win32':
-    print('chmod!')
     call(['chmod', '+x', exe_path])
 
 now = datetime.now()
 dest_timestamp = now.strftime('%Y-%m-%d_%H-%M-%S_%f')
 
 periods = {7: 'Last Week', 30: 'Last Month', 365: 'Last Year', 100000: 'All Time'}
-
-
-def _execute_command(params):
-    print('executing command', params)
-    params = params.split(' ') if isinstance(params, str) else params
-    proc = Popen(params, shell=(platform == 'win32'))
-    proc.wait()
-
-
-def _copy_file_to_s3(file_name):
-    _execute_command('aws s3 --storage-class=REDUCED_REDUNDANCY --acl=public-read cp {0} s3://ta-weightmon-chart-images/'.format(file_name))
 
 
 for p in periods.keys():
@@ -74,8 +63,8 @@ for p in periods.keys():
     with open(chart_file_name, mode='w') as dest_chart:
         dest_chart.write(chart_content)
 
-    _execute_command('{0} {1} {2} {3}'.format(exe_path, 'pjs-scr-cap.js', chart_file_name, chart_img_name))
-    _copy_file_to_s3(chart_img_name)
+    execute_command('{0} {1} {2} {3}'.format(exe_path, 'pjs-scr-cap.js', chart_file_name, chart_img_name))
+    copy_file_to_s3(chart_img_name)
     print('P: {0} complete'.format(p))
     remove(chart_file_name)
     remove(chart_img_name)
@@ -93,7 +82,7 @@ full_report_file_name = '{0}_mail.html'.format(dest_timestamp)
 mail_content = template.replace('[REPORT_DATE]', short_timestamp).replace('[GRAPHS]', '\n'.join(graphs)).replace('[FULL_REPORT_NAME]', full_report_file_name)
 with open(path.join(path.dirname(path.realpath(__file__)), full_report_file_name), mode='w') as mail_cont:
     mail_cont.write(mail_content)
-_copy_file_to_s3(full_report_file_name)
+copy_file_to_s3(full_report_file_name)
 
 mail_data = dict()
 mail_data['Subject'] = {'Data': 'Weight Monitor Report for {0}'.format(short_timestamp), 'Charset': 'UTF-8'}
@@ -103,7 +92,7 @@ mail_json_file_name = path.join(path.dirname(path.realpath(__file__)), '{0}_mail
 with open(mail_json_file_name, mode='w') as mail_content_json:
     mail_content_json.write(dumps(mail_data))
 
-_execute_command('aws ses send-email --from monitorweight@gmail.com --destination {0} --message {1}'
+execute_command('aws ses send-email --from monitorweight@gmail.com --destination {0} --message {1}'
     .format('file://' + path.join(path.dirname(path.realpath(__file__)), 'notification-mail-recipients.json'),
             'file://' + mail_json_file_name))
 
