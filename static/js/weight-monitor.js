@@ -1,7 +1,10 @@
-function saveWeight(u, d) {
+function saveWeight(u, d, r) {
     $.post(u, d)
         .done(function(data) {
             console.log('save done', data);
+            if(r) {
+                window.location = '/';
+            }
         });
 }
 
@@ -15,7 +18,7 @@ $(document).ready(function() {
 
     $("#weight-form").submit(function(e) {
         e.preventDefault();
-        saveWeight($(this).attr('action'), $(this).serialize());
+        saveWeight($(this).attr('action'), $(this).serialize(), true);
     });
 
     $(".weight-table .weight-value").editable({
