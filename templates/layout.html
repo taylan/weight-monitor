@@ -1,9 +1,9 @@
 <!doctype html>
 <html>
 <head>
-    <title>Weight Monitor</title>
+    <title>WeightMon</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    {#    <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon.png') }}">#}
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon.ico') }}">
     <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
     <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/pickadate.css') }}">
     <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/pickadate.date.css') }}">
@@ -21,7 +21,7 @@
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">Period <b class="caret"></b></a>
                 <ul class="dropdown-menu">
                     {% for k, l in period_lengths|dictsort(by='value') %}
-                    <li><a href="{{ url_for('index', period=k) }}">{{ period_titles[l] }}</a></li>
+                        <li><a href="{{ url_for('index', period=k) }}">{{ period_titles[l] }}</a></li>
                     {% endfor %}
                 </ul>
             </li>
