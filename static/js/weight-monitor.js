@@ -47,15 +47,15 @@ $(document).ready(function() {
                 legend: { position: 'none' }
             };
 
-        google.load("visualization", "1", {
-            packages: ["corechart"],
-            callback: drawChart
-        });
-
         function drawChart() {
             var data = google.visualization.arrayToDataTable(chartData, false);
             var chart = new google.visualization.LineChart(document.getElementById('chart-container'));
             chart.draw(data, options);
         }
+
+        google.load("visualization", "1", {
+            packages: ["corechart"],
+            callback: drawChart
+        });
     }
 });

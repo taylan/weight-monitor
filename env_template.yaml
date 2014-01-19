@@ -13,3 +13,7 @@ s3config:
 
 mfpconfig:
   MFPPASS: --
+
+appconfig:
+  APPUSER: --
+  APPPASS: --
