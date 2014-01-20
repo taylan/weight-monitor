@@ -1,11 +1,11 @@
 from subprocess import call
-from os import path, remove
+from os import path, remove, chdir
 from sys import platform
 from datetime import datetime
 from orm import dbsession, Measurement
 from sqlalchemy import desc
 from json import dumps
-from utils.utils import execute_command, copy_file_to_s3
+from utils.utils import execute_command, copy_file_to_s3, set_current_dir
 
 
 report_graph_template = """<table class='row'
@@ -36,6 +36,7 @@ report_graph_template = """<table class='row'
                                 </tr>
                             </table>"""
 
+set_current_dir(__file__)
 
 exe_name = '_phantomjs-{0}{1}'.format(platform, '.exe' if platform == 'win32' else '')
 exe_path = path.join(path.dirname(path.realpath(__file__)), exe_name)

@@ -3,7 +3,10 @@ from sys import exit
 from datetime import datetime
 from orm import dbsession, Measurement
 from json import dumps
-from utils.utils import execute_command
+from utils.utils import execute_command, set_current_dir
+
+
+set_current_dir(__file__)
 
 now = datetime.now().date()
 last_measurement = dbsession.query(Measurement.measurement_date).order_by(Measurement.measurement_date.desc()).first()[0].date()
