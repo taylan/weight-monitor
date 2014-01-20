@@ -57,5 +57,7 @@ $(document).ready(function() {
             packages: ["corechart"],
             callback: drawChart
         });
+
+        window.addEventListener('orientationchange', drawChart);
     }
 });
