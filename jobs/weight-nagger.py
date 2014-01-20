@@ -1,4 +1,4 @@
-from os import path, remove
+from os import path, remove, getcwd
 from sys import exit
 from datetime import datetime
 from orm import dbsession, Measurement
@@ -18,7 +18,7 @@ days_since_last = (now - last_measurement).days
 if days_since_last < 2:
     exit(0)
 
-with open(path.join(path.dirname(path.realpath(__file__)), 'nag_mail_template.html')) as nag_tpl:
+with open(path.join(getcwd(), 'nag_mail_template.html')) as nag_tpl:
     template = nag_tpl.read()
 
 mail_content = template.replace('[LAST_ENTRY_DATE]', last_measurement.strftime('%Y-%m-%d')).replace('[DAY_COUNT]', str(days_since_last))
@@ -27,12 +27,12 @@ mail_data = dict()
 mail_data['Subject'] = {'Data': 'Weight Monitor Warning', 'Charset': 'UTF-8'}
 mail_data['Body'] = {'Html': {'Data': mail_content, 'Charset': 'UTF-8'}}
 
-mail_json_file_name = path.join(path.dirname(path.realpath(__file__)), '{0}_nag_mail.json'.format(dest_timestamp))
+mail_json_file_name = path.join(getcwd(), '{0}_nag_mail.json'.format(dest_timestamp))
 with open(mail_json_file_name, mode='w') as mail_content_json:
     mail_content_json.write(dumps(mail_data))
 
 execute_command('aws ses send-email --from monitorweight@gmail.com --destination {0} --message {1}'
-    .format('file://' + path.join(path.dirname(path.realpath(__file__)), 'notification-mail-recipients.json'),
+    .format('file://' + path.join(getcwd(), 'notification-mail-recipients.json'),
             'file://' + mail_json_file_name))
 
 remove(mail_json_file_name)

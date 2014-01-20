@@ -1,5 +1,5 @@
 from subprocess import call
-from os import path, remove, chdir
+from os import path, remove, getcwd
 from sys import platform
 from datetime import datetime
 from orm import dbsession, Measurement
@@ -39,7 +39,7 @@ report_graph_template = """<table class='row'
 set_current_dir(__file__)
 
 exe_name = '_phantomjs-{0}{1}'.format(platform, '.exe' if platform == 'win32' else '')
-exe_path = path.join(path.dirname(path.realpath(__file__)), exe_name)
+exe_path = path.join(getcwd(), exe_name)
 if platform != 'win32':
     call(['chmod', '+x', exe_path])
 
@@ -50,7 +50,7 @@ periods = {7: 'Last Week', 30: 'Last Month', 365: 'Last Year', 100000: 'All Time
 
 
 for p in periods.keys():
-    with open(path.join(path.dirname(path.realpath(__file__)), 'chart_template.html')) as chart_template:
+    with open(path.join(getcwd(), 'chart_template.html')) as chart_template:
         chart_content = chart_template.read()
     chart_file_name = '{0}_{1}.html'.format(dest_timestamp, p)
     chart_img_name = '{0}_{1}.png'.format(dest_timestamp, p)
@@ -70,7 +70,7 @@ for p in periods.keys():
     remove(chart_file_name)
     remove(chart_img_name)
 
-with open(path.join(path.dirname(path.realpath(__file__)), 'notification_mail_template.html')) as notif_tpl:
+with open(path.join(getcwd(), 'notification_mail_template.html')) as notif_tpl:
     template = notif_tpl.read()
 
 graphs = []
@@ -81,7 +81,7 @@ for p in sorted(periods.keys()):
 short_timestamp = now.strftime('%Y-%m-%d')
 full_report_file_name = '{0}_mail.html'.format(dest_timestamp)
 mail_content = template.replace('[REPORT_DATE]', short_timestamp).replace('[GRAPHS]', '\n'.join(graphs)).replace('[FULL_REPORT_NAME]', full_report_file_name)
-with open(path.join(path.dirname(path.realpath(__file__)), full_report_file_name), mode='w') as mail_cont:
+with open(path.join(getcwd(), full_report_file_name), mode='w') as mail_cont:
     mail_cont.write(mail_content)
 copy_file_to_s3(full_report_file_name)
 
@@ -89,12 +89,12 @@ mail_data = dict()
 mail_data['Subject'] = {'Data': 'Weight Monitor Report for {0}'.format(short_timestamp), 'Charset': 'UTF-8'}
 mail_data['Body'] = {'Html': {'Data': mail_content, 'Charset': 'UTF-8'}}
 
-mail_json_file_name = path.join(path.dirname(path.realpath(__file__)), '{0}_mail.json'.format(dest_timestamp))
+mail_json_file_name = path.join(getcwd(), '{0}_mail.json'.format(dest_timestamp))
 with open(mail_json_file_name, mode='w') as mail_content_json:
     mail_content_json.write(dumps(mail_data))
 
 execute_command('aws ses send-email --from monitorweight@gmail.com --destination {0} --message {1}'
-    .format('file://' + path.join(path.dirname(path.realpath(__file__)), 'notification-mail-recipients.json'),
+    .format('file://' + path.join(getcwd(), 'notification-mail-recipients.json'),
             'file://' + mail_json_file_name))
 
 remove(full_report_file_name)
