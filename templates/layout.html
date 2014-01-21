@@ -3,6 +3,7 @@
 <head>
     <title>WeightMon</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon.ico') }}">
     <link rel="apple-touch-icon" sizes="144x144" href="{{ url_for('static', filename='img/apple-touch-icon-precomposed.png') }}" />
     <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
@@ -33,7 +34,6 @@
 <div class="container">
     {% block body %}{% endblock %}
 </div>
-<!-- /.container -->
 
 <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-2.0.3.min.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
