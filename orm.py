@@ -2,7 +2,7 @@ from sqlalchemy import create_engine, Column, DateTime, Float, Integer, String, 
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from config import initialize_config, is_debug
-from os import environ, path
+from os import environ
 
 initialize_config()
 
