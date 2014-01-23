@@ -45,7 +45,7 @@ if dbsession.query(Measurement).count() == 0:
     print('Measurement table is empty. Filling with data from Weightbot and MyFitnessPal.')
     me = dbsession.query(User).filter(User.email == 'taylanaydinli@gmail.com').first()
     if not me:
-        me = User(email='taylanaydinli@gmail.com', name='Taylan Aydinli', password_hash='x', password_salt='x')
+        me = User(email='taylanaydinli@gmail.com', name='Taylan Aydinli', password_hash='x')
         dbsession.add(me)
         dbsession.commit()
 
