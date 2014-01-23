@@ -4,20 +4,11 @@ from flask import Flask, render_template, request, jsonify, redirect
 from datetime import datetime
 from werkzeug.exceptions import HTTPException
 from utils.measurement_data import MeasurementData
-from flask.ext.basicauth import BasicAuth
-from os import environ
-
 
 period_lengths = {'last-week': 7, 'last-month': 30, 'last-year': 365, 'all-time': 100000}
 period_titles = {7: 'Last Week', 30: 'Last Month', 365: 'Last Year', 100000: 'All Time'}
 
 app = Flask(__name__)
-
-app.config['BASIC_AUTH_USERNAME'] = environ['APPUSER']
-app.config['BASIC_AUTH_PASSWORD'] = environ['APPPASS']
-app.config['BASIC_AUTH_REALM'] = 'WeightMon'
-basic_auth = BasicAuth(app)
-
 app.jinja_env.globals['now'] = datetime.now()
 app.jinja_env.globals['period_lengths'] = period_lengths
 app.jinja_env.globals['period_titles'] = period_titles
@@ -47,7 +38,6 @@ def save_measurement():
     return jsonify(r='e') if request.headers.get('X-Requested-With', '') else redirect(request.referrer)
 
 
-@basic_auth.required
 @app.route('/', methods=['GET'])
 @app.route('/p/<period>', methods=['GET'])
 def index(period='last-week'):
