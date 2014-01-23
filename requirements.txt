@@ -15,8 +15,10 @@ gunicorn==18.0
 itsdangerous==0.23
 jmespath==0.2.1
 lxml==3.2.4
+passlib==1.6.2
 ply==3.4
 psycopg2==2.5.2
+py-bcrypt==0.4
 pyasn1==0.1.7
 pygal==1.2.1
 python-dateutil==2.2
