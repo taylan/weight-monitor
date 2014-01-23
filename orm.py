@@ -1,6 +1,7 @@
 from sqlalchemy import create_engine, Column, DateTime, Float, Integer, String, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from flask.ext.login import UserMixin
 from config import initialize_config, is_debug
 from os import environ
 
@@ -10,15 +11,16 @@ Base = declarative_base()
 engine = create_engine('postgresql://{DBUSER}:{DBPASS}@{DBSERVER}:{DBPORT}/{DBNAME}'.format(**environ), echo=is_debug())
 
 
-class User(Base):
+class User(Base, UserMixin):
     __tablename__ = 'user'
     id = Column(Integer(), primary_key=True, nullable=False, autoincrement=True)
+    name = Column(String(), nullable=False)
     email = Column(String(), nullable=False)
     password_hash = Column(String(), nullable=False)
     password_salt = Column(String(), nullable=False)
 
-    def get_id(self):
-        return str(self.id)
+    def first_name(self):
+        return self.name.split(' ')[0]
 
 
 class Measurement(Base):
@@ -44,7 +46,7 @@ if dbsession.query(Measurement).count() == 0:
     print('Measurement table is empty. Filling with data from Weightbot and MyFitnessPal.')
     me = dbsession.query(User).filter(User.email == 'taylanaydinli@gmail.com').first()
     if not me:
-        me = User(email='taylanaydinli@gmail.com', password_hash='x', password_salt='x')
+        me = User(email='taylanaydinli@gmail.com', name='Taylan Aydinli', password_hash='x', password_salt='x')
         dbsession.add(me)
         dbsession.commit()
 

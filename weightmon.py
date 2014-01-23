@@ -1,6 +1,7 @@
-from orm import dbsession, Measurement
+from orm import dbsession, Measurement, User
 from config import is_debug
-from flask import Flask, render_template, request, jsonify, redirect
+from flask import Flask, render_template, request, jsonify, redirect, g
+from flask.ext.login import LoginManager, current_user, login_user, logout_user, login_required
 from datetime import datetime
 from werkzeug.exceptions import HTTPException
 from utils.measurement_data import MeasurementData
@@ -13,6 +14,10 @@ app.jinja_env.globals['now'] = datetime.now()
 app.jinja_env.globals['period_lengths'] = period_lengths
 app.jinja_env.globals['period_titles'] = period_titles
 
+login_manager = LoginManager(app)
+login_manager.login_view = 'login'
+login_manager.session_protection = 'strong'
+
 
 def _calculate_diffs(measurements):
     for i, m in reversed(list(enumerate(measurements))):
@@ -20,6 +25,27 @@ def _calculate_diffs(measurements):
             m.diff = 0
         else:
             m.diff = m.value - measurements[i + 1].value
+
+@login_manager.user_loader
+def load_user(user_id):
+    return dbsession.query(User).filter(User.id == int(user_id)).first() or None
+
+
+@app.before_request
+def before_request():
+    g.user = current_user
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    pass
+
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect('/')
 
 
 @app.route('/save', methods=['POST'])
@@ -40,6 +66,7 @@ def save_measurement():
 
 @app.route('/', methods=['GET'])
 @app.route('/p/<period>', methods=['GET'])
+@login_required
 def index(period='last-week'):
     p = period_lengths.get(period, 7)
     ms = dbsession.query(Measurement).order_by(Measurement.measurement_date.desc()).limit(p).all()
