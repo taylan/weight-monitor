@@ -5,6 +5,7 @@ from flask.ext.login import LoginManager, current_user, login_user, logout_user,
 from datetime import datetime
 from werkzeug.exceptions import HTTPException
 from utils.measurement_data import MeasurementData
+from os import environ
 
 period_lengths = {'last-week': 7, 'last-month': 30, 'last-year': 365, 'all-time': 100000}
 period_titles = {7: 'Last Week', 30: 'Last Month', 365: 'Last Year', 100000: 'All Time'}
@@ -13,6 +14,7 @@ app = Flask(__name__)
 app.jinja_env.globals['now'] = datetime.now()
 app.jinja_env.globals['period_lengths'] = period_lengths
 app.jinja_env.globals['period_titles'] = period_titles
+app.secret_key = environ['APPSECRET']
 
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'

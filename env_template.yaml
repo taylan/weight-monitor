@@ -13,3 +13,6 @@ s3config:
 
 mfpconfig:
   MFPPASS: --
+
+appconfig:
+  APPSECRET: --

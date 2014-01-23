@@ -43,7 +43,6 @@ $(document).ready(function() {
 
         var options = {
                 title: $.trim($($('.weight-table th')[0]).text()),
-                curveType: 'function',
                 legend: { position: 'none' }
             };
 
