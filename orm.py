@@ -7,8 +7,8 @@ from os import environ
 initialize_config()
 
 Base = declarative_base()
-engine = create_engine('postgresql://{DBUSER}:{DBPASS}@{DBSERVER}:{DBPORT}/{DBNAME}'.format(**environ),
-                       echo=is_debug())
+engine = create_engine('postgresql://{DBUSER}:{DBPASS}@{DBSERVER}:{DBPORT}/{DBNAME}'.format(**environ), echo=is_debug())
+
 
 class User(Base):
     __tablename__ = 'user'
@@ -26,7 +26,7 @@ class Measurement(Base):
     id = Column(Integer(), primary_key=True, nullable=False, autoincrement=True)
     measurement_date = Column(DateTime(), nullable=False, index=True)
     value = Column(Float(), nullable=False)
-    user_id = Column(Integer, nullable=False, ForeignKey('user.id'))
+    user_id = Column(Integer, ForeignKey('user.id'), nullable=False)
 
     def __str__(self):
         return '{0}: {1:.1f}kg'.format(self.measurement_date.strftime('%Y-%m-%d'), self.value)
@@ -42,9 +42,15 @@ Base.metadata.create_all(engine)
 
 if dbsession.query(Measurement).count() == 0:
     print('Measurement table is empty. Filling with data from Weightbot and MyFitnessPal.')
+    me = dbsession.query(User).filter(User.email == 'taylanaydinli@gmail.com').first()
+    if not me:
+        me = User(email='taylanaydinli@gmail.com', password_hash='x', password_salt='x')
+        dbsession.add(me)
+        dbsession.commit()
+
     from operator import itemgetter
     from utils.weightdataloader import get_weight_data
 
     for d in sorted(get_weight_data(), key=itemgetter('date')):
-        dbsession.add(Measurement(measurement_date=d['date'], value=d['total']))
+        dbsession.add(Measurement(measurement_date=d['date'], value=d['total'], user_id=me.id))
     dbsession.commit()
