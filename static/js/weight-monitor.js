@@ -12,6 +12,7 @@ $(document).ready(function() {
     $('#input-date').pickadate({
         format: 'yyyy-mm-dd',
         formatSubmit: 'yyyy-mm-dd',
+        max: new Date(),
         firstDay: 1,
         clear: false
     });
