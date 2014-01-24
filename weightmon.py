@@ -1,4 +1,5 @@
-from forms import LoginForm
+from forms import LoginForm, RegisterForm
+from markupsafe import Markup
 from orm import dbsession, Measurement, User
 from config import is_debug
 from flask import Flask, render_template, request, jsonify, redirect, g, url_for, flash
@@ -6,8 +7,10 @@ from flask.ext.login import LoginManager, current_user, login_user, logout_user,
 from datetime import datetime
 from werkzeug.exceptions import HTTPException
 from utils.measurement_data import MeasurementData
+from utils.formutils import write_errors_to_flash
 from os import environ
 from passlib.hash import bcrypt
+from sqlalchemy.sql import exists
 
 
 period_lengths = {'last-week': 7, 'last-month': 30, 'last-year': 365, 'all-time': 100000}
@@ -21,6 +24,8 @@ app.secret_key = environ['APPSECRET']
 
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
+login_msg_markup = Markup('Please log in to access this page. Not a member? Register <a href="{0}">here</a>.'.format('/register'))
+login_manager.login_message = login_msg_markup
 
 
 def _calculate_diffs(measurements):
@@ -53,16 +58,33 @@ def login():
     if form.validate_on_submit():
         user = _verify_user(form.email.data, form.password.data)
         if user:
-            login_user(user)
+            login_user(user, remember=True)
             return redirect(request.args.get("next") or url_for("index"))
         else:
             flash('Incorrect email or password.', category='danger')
     else:
-        for field, errors in form.errors.items():
-            for error in errors:
-                flash('Error in the {0} field - {1}'.format(getattr(form, field).label.text, error), 'danger')
+        write_errors_to_flash(form)
 
     return render_template('login.html', form=form)
+
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    form = RegisterForm()
+    if form.validate_on_submit():
+        if dbsession.query(exists().where(User.email == form.email.data)).scalar():
+            warning_markup = Markup('User with email {0} already exists. Click <a href="{1}">here</a> to login.'.format(form.email.data, url_for('login')))
+            flash(warning_markup, 'warning')
+            return render_template('register.html', form=form)
+        user = User(name=form.name.data, email=form.email.data, password_hash = bcrypt.encrypt(form.password.data))
+        dbsession.add(user)
+        dbsession.commit()
+        login_user(user, remember=True)
+        redirect('/')
+    else:
+        write_errors_to_flash(form)
+
+    return render_template('register.html', form=form)
 
 
 @app.route('/logout')
@@ -94,6 +116,7 @@ def save_measurement():
 def index(period='last-week'):
     p = period_lengths.get(period, 7)
     ms = dbsession.query(Measurement).filter(Measurement.user_id == g.user.id).order_by(Measurement.measurement_date.desc()).limit(p).all()
+    print(ms)
     _calculate_diffs(ms)
     md = MeasurementData(period_titles[p], ms)
 
