@@ -11,6 +11,7 @@ from utils.formutils import write_errors_to_flash
 from os import environ
 from passlib.hash import bcrypt
 from sqlalchemy.sql import exists
+from sqlalchemy import and_
 
 
 period_lengths = {'last-week': 7, 'last-month': 30, 'last-year': 365, 'all-time': 100000}
@@ -24,7 +25,8 @@ app.secret_key = environ['APPSECRET']
 
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
-login_msg_markup = Markup('Please log in to access this page. Not a member? Register <a href="{0}">here</a>.'.format('/register'))
+login_msg_markup = Markup(
+    'Please log in to access this page. Not a member? Register <a href="{0}">here</a>.'.format('/register'))
 login_manager.login_message = login_msg_markup
 
 
@@ -43,7 +45,6 @@ def before_request():
 
 def _verify_user(email, password):
     u = dbsession.query(User).filter(User.email == email).first() or None
-    print(u)
     return (u if bcrypt.verify(password, u.password_hash) else None) if u else None
 
 
@@ -73,10 +74,12 @@ def register():
     form = RegisterForm()
     if form.validate_on_submit():
         if dbsession.query(exists().where(User.email == form.email.data)).scalar():
-            warning_markup = Markup('User with email {0} already exists. Click <a href="{1}">here</a> to login.'.format(form.email.data, url_for('login')))
+            warning_markup = Markup(
+                'User with email {0} already exists. Click <a href="{1}">here</a> to login.'.format(form.email.data,
+                                                                                                    url_for('login')))
             flash(warning_markup, 'warning')
             return render_template('register.html', form=form)
-        user = User(name=form.name.data, email=form.email.data, password_hash = bcrypt.encrypt(form.password.data))
+        user = User(name=form.name.data, email=form.email.data, password_hash=bcrypt.encrypt(form.password.data))
         dbsession.add(user)
         dbsession.commit()
         login_user(user, remember=True)
@@ -102,8 +105,9 @@ def save_measurement():
     except (ValueError, HTTPException):
         return jsonify(r='e') if request.headers.get('X-Requested-With', '') else redirect(request.referrer)
 
-    m = dbsession.query(Measurement).filter(Measurement.measurement_date == date_val).first() or Measurement(
-        measurement_date=date_val)
+    m = dbsession.query(Measurement).filter(
+        and_(Measurement.measurement_date == date_val, Measurement.user_id == current_user.id)).first() or Measurement(
+            measurement_date=date_val, user_id=current_user.id)
     m.value = weight_val
     dbsession.add(m)
     dbsession.commit()
@@ -115,8 +119,8 @@ def save_measurement():
 @login_required
 def index(period='last-week'):
     p = period_lengths.get(period, 7)
-    ms = dbsession.query(Measurement).filter(Measurement.user_id == g.user.id).order_by(Measurement.measurement_date.desc()).limit(p).all()
-    print(ms)
+    ms = dbsession.query(Measurement).filter(Measurement.user_id == g.user.id).order_by(
+        Measurement.measurement_date.desc()).limit(p).all()
     _calculate_diffs(ms)
     md = MeasurementData(period_titles[p], ms)
 
