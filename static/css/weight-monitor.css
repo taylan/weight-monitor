@@ -73,4 +73,9 @@
 
 #chart-container {
     height: 400px;
+    padding: 0;
+}
+
+#weight-table-container {
+    padding-top: 20px;
 }

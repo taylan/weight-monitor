@@ -2,7 +2,7 @@ function saveWeight(u, d, r) {
     $.post(u, d)
         .done(function(data) {
             console.log('save done', data);
-            if(r) {
+            if (r) {
                 window.location = '/';
             }
         });
@@ -42,9 +42,10 @@ $(document).ready(function() {
         chartData.unshift(['Date', 'Value']);
 
         var options = {
-                title: $.trim($($('.weight-table th')[0]).text()),
-                legend: { position: 'none' }
-            };
+            title: $.trim($($('.weight-table th')[0]).text()),
+            legend: { position: 'none' },
+            chartArea: { right: 0, left: '11%', top: 30, width: "85%", height: '80%' }
+        };
 
         function drawChart() {
             var data = google.visualization.arrayToDataTable(chartData, false);
