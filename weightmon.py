@@ -21,7 +21,6 @@ app.secret_key = environ['APPSECRET']
 
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
-login_manager.session_protection = 'strong'
 
 
 def _calculate_diffs(measurements):
@@ -39,6 +38,7 @@ def before_request():
 
 def _verify_user(email, password):
     u = dbsession.query(User).filter(User.email == email).first() or None
+    print(u)
     return (u if bcrypt.verify(password, u.password_hash) else None) if u else None
 
 
@@ -51,7 +51,7 @@ def load_user(user_id):
 def login():
     form = LoginForm()
     if form.validate_on_submit():
-        user = _verify_user(form.email, form.password)
+        user = _verify_user(form.email.data, form.password.data)
         if user:
             login_user(user)
             return redirect(request.args.get("next") or url_for("index"))
@@ -93,7 +93,7 @@ def save_measurement():
 @login_required
 def index(period='last-week'):
     p = period_lengths.get(period, 7)
-    ms = dbsession.query(Measurement).order_by(Measurement.measurement_date.desc()).limit(p).all()
+    ms = dbsession.query(Measurement).filter(Measurement.user_id == g.user.id).order_by(Measurement.measurement_date.desc()).limit(p).all()
     _calculate_diffs(ms)
     md = MeasurementData(period_titles[p], ms)
 
