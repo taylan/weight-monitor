@@ -18,6 +18,7 @@ class User(Base, UserMixin):
     email = Column(String(), nullable=False)
     password_hash = Column(String(), nullable=False)
 
+    @property
     def first_name(self):
         return self.name.split(' ')[0]
 
