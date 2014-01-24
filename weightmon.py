@@ -12,12 +12,14 @@ from os import environ
 from passlib.hash import bcrypt
 from sqlalchemy.sql import exists
 from sqlalchemy import and_
+from flask.ext.compress import Compress
 
 
 period_lengths = {'last-week': 7, 'last-month': 30, 'last-year': 365, 'all-time': 100000}
 period_titles = {7: 'Last Week', 30: 'Last Month', 365: 'Last Year', 100000: 'All Time'}
 
 app = Flask(__name__)
+app.config['COMPRESS_DEBUG'] = True
 app.jinja_env.globals['now'] = datetime.now()
 app.jinja_env.globals['period_lengths'] = period_lengths
 app.jinja_env.globals['period_titles'] = period_titles
@@ -28,6 +30,8 @@ login_manager.login_view = 'login'
 login_msg_markup = Markup(
     'Please log in to access this page. Not a member? Register <a href="{0}">here</a>.'.format('/register'))
 login_manager.login_message = login_msg_markup
+
+Compress(app)
 
 
 def _calculate_diffs(measurements):
