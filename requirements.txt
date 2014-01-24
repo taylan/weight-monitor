@@ -1,9 +1,11 @@
 Flask==0.10.1
 Flask-Login==0.2.9
+Flask-WTF==0.9.4
 Jinja2==2.7.1
 MarkupSafe==0.18
 PyYAML==3.10
 SQLAlchemy==0.9.1
+WTForms==1.0.5
 Werkzeug==0.9.4
 awscli==1.2.10
 bcdoc==0.12.0
