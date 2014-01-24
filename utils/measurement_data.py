@@ -12,5 +12,9 @@ class MeasurementData(object):
         return self._data
 
     @property
+    def has_data(self):
+        return True if self._data else False
+
+    @property
     def total_diff(self):
-        return self._data[0].value - self._data[-1].value
+        return self._data[0].value - self._data[-1].value if self._data else 0

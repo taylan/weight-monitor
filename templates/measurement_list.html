@@ -1,4 +1,5 @@
 {% macro render_measurements(md) %}
+    {% if md.has_data %}
     <div id="chart-container" class="col-lg-8 col-md-8 col-sm-8 col-xs-12 col-lg-offset-2 col-md-offset-2 col-sm-offset-2">
 
     </div>
@@ -27,5 +28,5 @@
             {% endfor %}
         </table>
     </div>
-
+    {% endif %}
 {% endmacro %}
