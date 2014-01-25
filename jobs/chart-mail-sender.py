@@ -1,11 +1,11 @@
 from subprocess import call
-from os import path, remove, getcwd
+from os import path, getcwd
 from sys import platform
 from datetime import datetime
 from orm import dbsession, Measurement, User
 from sqlalchemy import desc
 from json import dumps
-from utils.utils import execute_command, copy_file_to_s3, set_current_dir
+from utils.utils import execute_command, copy_file_to_s3, set_current_dir, _remove_files
 
 
 report_graph_template = """<table class='row'
@@ -51,7 +51,8 @@ periods = {7: 'Last Week', 30: 'Last Month', 365: 'Last Year', 100000: 'All Time
 
 
 def get_measurements(user_id, limit):
-    ms = dbsession.query(Measurement).filter(Measurement.user_id == user_id).order_by(desc(Measurement.measurement_date)).limit(limit).all()
+    ms = dbsession.query(Measurement).filter(Measurement.user_id == user_id).order_by(
+        desc(Measurement.measurement_date)).limit(limit).all()
     ms = sorted(ms, key=lambda m: m.measurement_date)
     return ms
 
@@ -73,10 +74,6 @@ def prepare_and_save_chart_content(chart_content_template, chart_fn, user_id, pe
 def _get_chart_template():
     with open(path.join(getcwd(), 'chart_template.html')) as chart_template:
         return chart_template.read()
-
-
-def _remove_files(*files):
-    [remove(f) for f in files]
 
 
 def save_chart_image(chart_fn, chart_img):
@@ -112,7 +109,8 @@ def get_graph_contents(user_id):
 def create_and_save_full_report(full_report_fn, user_id):
     template = _get_notification_mail_template()
     graphs = get_graph_contents(user_id)
-    mail_content = template.replace('[REPORT_DATE]', short_timestamp).replace('[GRAPHS]', '\n'.join(graphs)).replace('[FULL_REPORT_NAME]', full_report_fn)
+    mail_content = template.replace('[REPORT_DATE]', short_timestamp).replace('[GRAPHS]', '\n'.join(graphs)).replace(
+        '[FULL_REPORT_NAME]', full_report_fn)
     with open(path.join(getcwd(), full_report_fn), mode='w') as mail_cont:
         mail_cont.write(mail_content)
     return mail_content
@@ -128,11 +126,7 @@ def create_and_save_mail_json(mail_json_fn, content):
 
 
 def create_and_save_notification_recipients_json(notif_recip_json_fn, recipient):
-    notif_recip_content = dumps({
-      "ToAddresses": [recipient],
-      "CcAddresses": [],
-      "BccAddresses": []
-    })
+    notif_recip_content = dumps({"ToAddresses": [recipient], "CcAddresses": [], "BccAddresses": []})
     with open(notif_recip_json_fn, mode='w') as notif_recip_json:
         notif_recip_json.write(notif_recip_content)
 
@@ -148,11 +142,12 @@ for u in users:
     mail_json_file_name = path.join(getcwd(), '{0}_{1}_mail.json'.format(dest_timestamp, u.id))
     create_and_save_mail_json(mail_json_file_name, mail_content)
 
-    notification_recipients_file_name = path.join(getcwd(), 'notification-mail-recipients_{0}_{1}.json'.format(dest_timestamp, u.id))
-    create_and_save_notification_recipients_json(notification_recipients_file_name, u.email)
+    notif_recipients_file_name = path.join(getcwd(),
+                                           'notification-mail-recipients_{0}_{1}.json'.format(dest_timestamp, u.id))
+    create_and_save_notification_recipients_json(notif_recipients_file_name, u.email)
 
     execute_command('aws ses send-email --from monitorweight@gmail.com --destination {0} --message {1}'
-        .format('file://' + notification_recipients_file_name,
-                'file://' + mail_json_file_name))
+    .format('file://' + notif_recipients_file_name,
+            'file://' + mail_json_file_name))
 
-    _remove_files(full_report_file_name, mail_json_file_name, notification_recipients_file_name)
+    _remove_files(full_report_file_name, mail_json_file_name, notif_recipients_file_name)

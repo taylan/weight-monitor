@@ -1,6 +1,6 @@
 from subprocess import Popen
 from sys import platform
-from os import path, chdir
+from os import path, chdir, remove
 
 
 def execute_command(params):
@@ -16,3 +16,7 @@ def copy_file_to_s3(file_name):
 
 def set_current_dir(file_path):
     chdir(path.dirname(path.abspath(file_path)))
+
+
+def _remove_files(*files):
+    [remove(f) for f in files]

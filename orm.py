@@ -22,6 +22,12 @@ class User(Base, UserMixin):
     def first_name(self):
         return self.name.split(' ')[0]
 
+    def __str__(self):
+        return '{0} [1] ({2})'.format(self.name, self.id, self.email)
+
+    def __repr__(self):
+        return '{0}([1] {2})'.format(self.__class__, self.id, self.email)
+
 
 class Measurement(Base):
     __tablename__ = 'measurement'
