@@ -2,7 +2,7 @@ from subprocess import call
 from os import path, remove, getcwd
 from sys import platform
 from datetime import datetime
-from orm import dbsession, Measurement
+from orm import dbsession, Measurement, User
 from sqlalchemy import desc
 from json import dumps
 from utils.utils import execute_command, copy_file_to_s3, set_current_dir
@@ -45,57 +45,114 @@ if platform != 'win32':
 
 now = datetime.now()
 dest_timestamp = now.strftime('%Y-%m-%d_%H-%M-%S_%f')
+short_timestamp = now.strftime('%Y-%m-%d')
 
 periods = {7: 'Last Week', 30: 'Last Month', 365: 'Last Year', 100000: 'All Time'}
 
 
-for p in periods.keys():
+def get_measurements(user_id, limit):
+    ms = dbsession.query(Measurement).filter(Measurement.user_id == user_id).order_by(desc(Measurement.measurement_date)).limit(limit).all()
+    ms = sorted(ms, key=lambda m: m.measurement_date)
+    return ms
+
+
+def get_chart_data(ms):
+    return [[m.measurement_date.strftime('%y-%m-%d'), m.value] for m in ms]
+
+
+def prepare_and_save_chart_content(chart_content_template, chart_fn, user_id, period):
+    measurements = get_measurements(user_id, period)
+    chart_data = get_chart_data(measurements)
+    content = chart_content_template.replace('[CHART_DATA]', ', '.join(map(str, chart_data)))
+    content = content.replace('[CHART_TITLE]', periods[period])
+
+    with open(chart_fn, mode='w') as dest_chart:
+        dest_chart.write(content)
+
+
+def _get_chart_template():
     with open(path.join(getcwd(), 'chart_template.html')) as chart_template:
-        chart_content = chart_template.read()
-    chart_file_name = '{0}_{1}.html'.format(dest_timestamp, p)
-    chart_img_name = '{0}_{1}.png'.format(dest_timestamp, p)
+        return chart_template.read()
 
-    measurements = dbsession.query(Measurement).order_by(desc(Measurement.measurement_date)).limit(p).all()
-    measurements = sorted(measurements, key=lambda m: m.measurement_date)
-    dt = [[m.measurement_date.strftime('%y-%m-%d'), m.value] for m in measurements]
-    chart_content = chart_content.replace('[CHART_DATA]', ', '.join(map(str, dt)))
-    chart_content = chart_content.replace('[CHART_TITLE]', periods[p])
 
-    with open(chart_file_name, mode='w') as dest_chart:
-        dest_chart.write(chart_content)
+def _remove_files(*files):
+    [remove(f) for f in files]
 
-    execute_command('{0} {1} {2} {3}'.format(exe_path, 'pjs-scr-cap.js', chart_file_name, chart_img_name))
-    copy_file_to_s3(chart_img_name)
-    print('P: {0} complete'.format(p))
-    remove(chart_file_name)
-    remove(chart_img_name)
 
-with open(path.join(getcwd(), 'notification_mail_template.html')) as notif_tpl:
-    template = notif_tpl.read()
+def save_chart_image(chart_fn, chart_img):
+    execute_command('{0} {1} {2} {3}'.format(exe_path, 'pjs-scr-cap.js', chart_fn, chart_img))
+    copy_file_to_s3(chart_img)
 
-graphs = []
-for p in sorted(periods.keys()):
-    chart_img_name = '{0}_{1}.png'.format(dest_timestamp, p)
-    graphs.append(report_graph_template.replace('[PERIOD]', periods[p]).replace('[IMAGE_NAME]', chart_img_name))
 
-short_timestamp = now.strftime('%Y-%m-%d')
-full_report_file_name = '{0}_mail.html'.format(dest_timestamp)
-mail_content = template.replace('[REPORT_DATE]', short_timestamp).replace('[GRAPHS]', '\n'.join(graphs)).replace('[FULL_REPORT_NAME]', full_report_file_name)
-with open(path.join(getcwd(), full_report_file_name), mode='w') as mail_cont:
-    mail_cont.write(mail_content)
-copy_file_to_s3(full_report_file_name)
+def prepare_chart_images(user_id):
+    for p in periods.keys():
+        chart_file = '{0}_{1}_{2}.html'.format(dest_timestamp, p, user_id)
+        chart_img = '{0}_{1}_{2}.png'.format(dest_timestamp, p, user_id)
+        chart_template = _get_chart_template()
+        prepare_and_save_chart_content(chart_template, chart_file, user_id, p)
+        save_chart_image(chart_file, chart_img)
 
-mail_data = dict()
-mail_data['Subject'] = {'Data': 'Weight Monitor Report for {0}'.format(short_timestamp), 'Charset': 'UTF-8'}
-mail_data['Body'] = {'Html': {'Data': mail_content, 'Charset': 'UTF-8'}}
+        _remove_files(chart_file, chart_img)
+        print('P: {0} U: {1} complete'.format(p, user_id))
 
-mail_json_file_name = path.join(getcwd(), '{0}_mail.json'.format(dest_timestamp))
-with open(mail_json_file_name, mode='w') as mail_content_json:
-    mail_content_json.write(dumps(mail_data))
 
-execute_command('aws ses send-email --from monitorweight@gmail.com --destination {0} --message {1}'
-    .format('file://' + path.join(getcwd(), 'notification-mail-recipients.json'),
-            'file://' + mail_json_file_name))
+def _get_notification_mail_template():
+    with open(path.join(getcwd(), 'notification_mail_template.html')) as notif_tpl:
+        return notif_tpl.read()
 
-remove(full_report_file_name)
-remove(mail_json_file_name)
+
+def get_graph_contents(user_id):
+    grphs = []
+    for p in sorted(periods.keys()):
+        chart_img = '{0}_{1}_{2}.png'.format(dest_timestamp, p, user_id)
+        grphs.append(report_graph_template.replace('[PERIOD]', periods[p]).replace('[IMAGE_NAME]', chart_img))
+    return grphs
+
+
+def create_and_save_full_report(full_report_fn, user_id):
+    template = _get_notification_mail_template()
+    graphs = get_graph_contents(user_id)
+    mail_content = template.replace('[REPORT_DATE]', short_timestamp).replace('[GRAPHS]', '\n'.join(graphs)).replace('[FULL_REPORT_NAME]', full_report_fn)
+    with open(path.join(getcwd(), full_report_fn), mode='w') as mail_cont:
+        mail_cont.write(mail_content)
+    return mail_content
+
+
+def create_and_save_mail_json(mail_json_fn, content):
+    mail_data = dict()
+    mail_data['Subject'] = {'Data': 'Weight Monitor Report for {0}'.format(short_timestamp), 'Charset': 'UTF-8'}
+    mail_data['Body'] = {'Html': {'Data': content, 'Charset': 'UTF-8'}}
+
+    with open(mail_json_fn, mode='w') as mail_content_json:
+        mail_content_json.write(dumps(mail_data))
+
+
+def create_and_save_notification_recipients_json(notif_recip_json_fn, recipient):
+    notif_recip_content = dumps({
+      "ToAddresses": [recipient],
+      "CcAddresses": [],
+      "BccAddresses": []
+    })
+    with open(notif_recip_json_fn, mode='w') as notif_recip_json:
+        notif_recip_json.write(notif_recip_content)
+
+
+users = dbsession.query(User).all()
+for u in users:
+    prepare_chart_images(u.id)
+
+    full_report_file_name = '{0}_{1}_mail.html'.format(dest_timestamp, u.id)
+    mail_content = create_and_save_full_report(full_report_file_name, u.id)
+    copy_file_to_s3(full_report_file_name)
+
+    mail_json_file_name = path.join(getcwd(), '{0}_{1}_mail.json'.format(dest_timestamp, u.id))
+    create_and_save_mail_json(mail_json_file_name, mail_content)
+
+    notification_recipients_file_name = path.join(getcwd(), 'notification-mail-recipients_{0}_{1}.json'.format(dest_timestamp, u.id))
+    create_and_save_notification_recipients_json(notification_recipients_file_name, u.email)
+
+    execute_command('aws ses send-email --from monitorweight@gmail.com --destination {0} --message {1}'
+        .format('file://' + notification_recipients_file_name,
+                'file://' + mail_json_file_name))
+
+    _remove_files(full_report_file_name, mail_json_file_name, notification_recipients_file_name)
