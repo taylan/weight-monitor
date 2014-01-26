@@ -1,5 +1,12 @@
+# -*- coding: utf-8 -*-
 import yaml
 from os import path, environ
+
+
+LANGUAGES = {
+    'tr': 'Türkçe',
+    'en': 'English'
+}
 
 
 def contains(small, big):

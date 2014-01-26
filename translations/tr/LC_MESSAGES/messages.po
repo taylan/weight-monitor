@@ -1,0 +1,64 @@
+#: weightmon.py:31
+msgid ""
+"Please log in to access this page. Not a member? Register <a "
+"href=\"{0}\">here</a>."
+msgstr "Uygulamayı kullanmak için giriş yapın. Üye değil misiniz? Kaydolmak için <a \"href=\"{0}\">tıklayın</a>."
+
+#: weightmon.py:76
+msgid "Incorrect email or password."
+msgstr "Hatalı e-posta veya şifre."
+
+#: forms/__init__.py:22
+msgid "Passwords must match"
+msgstr "Şifreler aynı olmalı"
+
+#: templates/index.html:15
+msgid "Save Weight"
+msgstr "Kaydet"
+
+#: templates/layout.html:33
+msgid "Logout"
+msgstr "Çıkış"
+
+#: templates/layout.html:37 templates/login.html:2 templates/login.html:13
+msgid "Login"
+msgstr "Giriş"
+
+#: templates/layout.html:38 templates/login.html:14 templates/register.html:2
+#: templates/register.html:19
+msgid "Register"
+msgstr "Kayıt Ol"
+
+#: templates/login.html:8 templates/register.html:11
+msgid "Email"
+msgstr "E-posta"
+
+#: templates/login.html:11 templates/register.html:14
+msgid "Password"
+msgstr "Şifre"
+
+#: templates/measurement_list.html:9 templates/measurement_list.html:15
+msgid "Diff"
+msgstr "Fark"
+
+#: templates/measurement_list.html:13
+msgid "Date"
+msgstr "Tarih"
+
+#: templates/measurement_list.html:14
+msgid "Weight"
+msgstr "Ağırlık"
+
+#: templates/register.html:8
+msgid "Name"
+msgstr "Ad Soyad"
+
+#: templates/register.html:17
+msgid "Password confirm"
+msgstr "Şifre tekrar"
+
+#: utils/formutils.py:8
+#, python-format
+msgid "Error in the %(field_name) field - %(error)"
+msgstr "%(field_name) hatası: %(error)"
+

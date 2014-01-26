@@ -1,0 +1,64 @@
+#: weightmon.py:31
+msgid ""
+"Please log in to access this page. Not a member? Register <a "
+"href=\"{0}\">here</a>."
+msgstr ""
+
+#: weightmon.py:76
+msgid "Incorrect email or password."
+msgstr ""
+
+#: forms/__init__.py:22
+msgid "Passwords must match"
+msgstr ""
+
+#: templates/index.html:15
+msgid "Save Weight"
+msgstr ""
+
+#: templates/layout.html:33
+msgid "Logout"
+msgstr ""
+
+#: templates/layout.html:37 templates/login.html:2 templates/login.html:13
+msgid "Login"
+msgstr ""
+
+#: templates/layout.html:38 templates/login.html:14 templates/register.html:2
+#: templates/register.html:19
+msgid "Register"
+msgstr ""
+
+#: templates/login.html:8 templates/register.html:11
+msgid "Email"
+msgstr ""
+
+#: templates/login.html:11 templates/register.html:14
+msgid "Password"
+msgstr ""
+
+#: templates/measurement_list.html:9 templates/measurement_list.html:15
+msgid "Diff"
+msgstr ""
+
+#: templates/measurement_list.html:13
+msgid "Date"
+msgstr ""
+
+#: templates/measurement_list.html:14
+msgid "Weight"
+msgstr ""
+
+#: templates/register.html:8
+msgid "Name"
+msgstr ""
+
+#: templates/register.html:17
+msgid "Password confirm"
+msgstr ""
+
+#: utils/formutils.py:8
+#, python-format
+msgid "Error in the %(field_name) field - %(error)"
+msgstr ""
+

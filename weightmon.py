@@ -1,7 +1,7 @@
 from forms import LoginForm, RegisterForm
 from markupsafe import Markup
 from orm import dbsession, Measurement, User
-from config import is_debug
+from config import is_debug, LANGUAGES
 from flask import Flask, render_template, request, jsonify, redirect, g, url_for, flash
 from flask.ext.login import LoginManager, current_user, login_user, logout_user, login_required
 from datetime import datetime
@@ -13,7 +13,7 @@ from passlib.hash import bcrypt
 from sqlalchemy.sql import exists
 from sqlalchemy import and_
 from flask.ext.compress import Compress
-from flask_babel import Babel
+from flask_babel import Babel, gettext
 
 
 period_lengths = {'last-week': 7, 'last-month': 30, 'last-year': 365, 'all-time': 100000}
@@ -28,19 +28,17 @@ app.secret_key = environ['APPSECRET']
 
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
-login_msg_markup = Markup(
-    'Please log in to access this page. Not a member? Register <a href="{0}">here</a>.'.format('/register'))
+login_msg_markup = Markup(gettext('Please log in to access this page. Not a member? Register <a href="{0}">here</a>.').format('/register'))
 login_manager.login_message = login_msg_markup
 
 Compress(app)
-
 babel = Babel(app)
 
 
 @babel.localeselector
 def get_locale():
     lang = request.cookies.get('lang', '')
-    return lang or request.accept_languages.best_match(['tr', 'en'])
+    return lang or 'tr'
 
 
 def _calculate_diffs(measurements):
@@ -75,7 +73,7 @@ def login():
             login_user(user, remember=True)
             return redirect(request.args.get("next") or url_for("index"))
         else:
-            flash('Incorrect email or password.', category='danger')
+            flash(gettext('Incorrect email or password.'), category='danger')
     else:
         write_errors_to_flash(form)
 
@@ -87,9 +85,7 @@ def register():
     form = RegisterForm()
     if form.validate_on_submit():
         if dbsession.query(exists().where(User.email == form.email.data)).scalar():
-            warning_markup = Markup(
-                'User with email {0} already exists. Click <a href="{1}">here</a> to login.'.format(form.email.data,
-                                                                                                    url_for('login')))
+            warning_markup = Markup('User with email %(email) already exists. Click <a href="%(login_link)">here</a> to login.', email=form.email.data, login_link=url_for('login'))
             flash(warning_markup, 'warning')
             return render_template('register.html', form=form)
         user = User(name=form.name.data, email=form.email.data, password_hash=bcrypt.encrypt(form.password.data))

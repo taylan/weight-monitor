@@ -6,13 +6,13 @@
     <div id="weight-table-container" class="col-lg-6 col-md-6 col-sm-6 col-xs-12 col-lg-offset-3 col-md-offset-3 col-sm-offset-3 text-center">
         <table class="table weight-table table-striped table-condensed">
             <tr>
-                <th colspan="3">{{ md.title }} <small class="text-muted">(Diff: {{ "%+.1f"|format(md.total_diff) }} kg)</small>
+                <th colspan="3">{{ md.title }} <small class="text-muted">({{ _('Diff') }}: {{ "%+.1f"|format(md.total_diff) }} kg)</small>
                 </th>
             </tr>
             <tr>
-                <th>Date</th>
-                <th>Weight</th>
-                <th>Diff</th>
+                <th>{{ _('Date') }}</th>
+                <th>{{ _('Weight') }}</th>
+                <th>{{ _('Diff') }}</th>
             </tr>
             {% for m in md.data %}
                 <tr>

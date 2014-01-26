@@ -30,12 +30,12 @@
                             <li><a href="{{ url_for('index', period=k) }}">{{ period_titles[l] }}</a></li>
                         {% endfor %}
                         <li class="divider"></li>
-                        <li><a href="{{ url_for('logout') }}">Logout</a></li>
+                        <li><a href="{{ url_for('logout') }}">{{ _('Logout') }}</a></li>
                     </ul>
                 </li>
             {% else %}
-                <li><a href="{{ url_for('login') }}">Login</a></li>
-                <li><a href="{{ url_for('register') }}">Register</a></li>
+                <li><a href="{{ url_for('login') }}">{{ _('Login') }}</a></li>
+                <li><a href="{{ url_for('register') }}">{{ _('Register') }}</a></li>
             {% endif %}
         </ul>
     </div>
