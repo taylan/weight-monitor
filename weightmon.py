@@ -13,6 +13,7 @@ from passlib.hash import bcrypt
 from sqlalchemy.sql import exists
 from sqlalchemy import and_
 from flask.ext.compress import Compress
+from flask_babel import Babel
 
 
 period_lengths = {'last-week': 7, 'last-month': 30, 'last-year': 365, 'all-time': 100000}
@@ -32,6 +33,14 @@ login_msg_markup = Markup(
 login_manager.login_message = login_msg_markup
 
 Compress(app)
+
+babel = Babel(app)
+
+
+@babel.localeselector
+def get_locale():
+    lang = request.cookies.get('lang', '')
+    return lang or request.accept_languages.best_match(['tr', 'en'])
 
 
 def _calculate_diffs(measurements):
