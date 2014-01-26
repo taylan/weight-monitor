@@ -15,7 +15,7 @@ class User(Base, UserMixin):
     __tablename__ = 'user'
     id = Column(Integer(), primary_key=True, nullable=False, autoincrement=True)
     name = Column(String(), nullable=False)
-    email = Column(String(), nullable=False)
+    email = Column(String(), nullable=False, index=True)
     password_hash = Column(String(), nullable=False)
 
     @property
@@ -34,7 +34,7 @@ class Measurement(Base):
     id = Column(Integer(), primary_key=True, nullable=False, autoincrement=True)
     measurement_date = Column(DateTime(), nullable=False, index=True)
     value = Column(Float(), nullable=False)
-    user_id = Column(Integer, ForeignKey('user.id'), nullable=False)
+    user_id = Column(Integer, ForeignKey('user.id'), nullable=False, index=True)
 
     def __str__(self):
         return '{0}: {1:.1f}kg'.format(self.measurement_date.strftime('%Y-%m-%d'), self.value)
