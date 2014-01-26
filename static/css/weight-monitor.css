@@ -47,9 +47,13 @@
         float: left;
     }
 
+    .nav>li {
+        display: inline-block;
+    }
+
     .navbar-nav > li > a {
         font-size: 12px;
-        padding: 4px 15px;
+        padding: 4px 10px;
     }
 
     .navbar-nav {
