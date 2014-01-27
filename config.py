@@ -3,10 +3,7 @@ import yaml
 from os import path, environ
 
 
-LANGUAGES = {
-    'tr': 'Türkçe',
-    'en': 'English'
-}
+LANGUAGES = ['tr', 'en']
 
 
 def contains(small, big):

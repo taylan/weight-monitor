@@ -4,7 +4,7 @@ from orm import dbsession, Measurement, User
 from config import is_debug, LANGUAGES
 from flask import Flask, render_template, request, jsonify, redirect, g, url_for, flash
 from flask.ext.login import LoginManager, current_user, login_user, logout_user, login_required
-from datetime import datetime
+from datetime import datetime, timedelta
 from werkzeug.exceptions import HTTPException
 from utils.measurement_data import MeasurementData
 from utils.formutils import write_errors_to_flash
@@ -15,7 +15,6 @@ from sqlalchemy import and_
 from flask.ext.compress import Compress
 from flask_babel import Babel, gettext
 from flask.ext.assets import Environment, Bundle
-
 
 period_lengths = {'last-week': 7, 'last-month': 30, 'last-year': 365, 'all-time': 100000}
 period_titles = {7: 'Last Week', 30: 'Last Month', 365: 'Last Year', 100000: 'All Time'}
@@ -43,8 +42,7 @@ assets.register('all_css', Bundle('css/bootstrap.min.css', 'css/pickadate.css', 
 
 @babel.localeselector
 def get_locale():
-    lang = request.cookies.get('lang', '')
-    return lang or 'tr'
+    return g.lang
 
 
 def _calculate_diffs(measurements):
@@ -58,6 +56,13 @@ def _calculate_diffs(measurements):
 @app.before_request
 def before_request():
     g.user = current_user
+    g.lang = request.args.get('hl', request.cookies.get('lang', '')) or request.accept_languages.best_match(LANGUAGES)
+
+
+@app.after_request
+def after_request(resp):
+    resp.set_cookie('lang', value=g.lang, max_age=timedelta(days=120).seconds, httponly=True)
+    return resp
 
 
 def _verify_user(email, password):
