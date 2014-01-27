@@ -1,3 +1,9 @@
+html,
+body {
+    height: 100%;
+    /* The html and body elements cannot have any padding or margin. */
+}
+
 .weight-form {
     margin-bottom: 20px;
 }
@@ -47,13 +53,13 @@
         float: left;
     }
 
-    .nav>li {
+    .nav > li {
         display: inline-block;
     }
 
     .navbar-nav > li > a {
         font-size: 12px;
-        padding: 4px 10px;
+        padding: 4px 6px 4px 4px;
     }
 
     .navbar-nav {
@@ -73,6 +79,10 @@
     .navbar-nav .open .dropdown-menu > li > a {
         padding: 3px 15px;
     }
+
+    .alert {
+        padding: 10px;
+    }
 }
 
 #chart-container {
@@ -82,4 +92,45 @@
 
 #weight-table-container {
     padding-top: 20px;
+}
+
+#wrap {
+    min-height: 100%;
+    height: auto;
+    margin: 0 auto -30px;
+    padding: 0 0 30px;
+}
+
+#footer {
+    background-color: #f5f5f5;
+    font-size: smaller;
+    height: 30px;
+
+}
+
+.footer-copyright {
+    width: 47%;
+    margin-top: 8px !important;
+}
+
+.footer-icon-container {
+    width: 6%;
+    line-height: 0.5;
+    margin-top: 3px !important;
+}
+
+.footer-lang-sel {
+    width: 47%;
+    margin-top: 4px !important;
+}
+
+.footer-lang-sel .dropdown-menu {
+    min-width: 0;
+}
+
+#footer-icon {
+    height: 24px;
+    width: 24px;
+    display: inline-block;
+    background: transparent url('/static/img/bw-icon.png');
 }

@@ -8,6 +8,7 @@ from datetime import datetime, timedelta
 from werkzeug.exceptions import HTTPException
 from utils.measurement_data import MeasurementData
 from utils.formutils import write_errors_to_flash
+from utils.templatehelpers import url_for_lang
 from os import environ
 from passlib.hash import bcrypt
 from sqlalchemy.sql import exists
@@ -25,6 +26,7 @@ app.config['ASSETS_DEBUG'] = is_debug()
 app.jinja_env.globals['now'] = datetime.now()
 app.jinja_env.globals['period_lengths'] = period_lengths
 app.jinja_env.globals['period_titles'] = period_titles
+app.jinja_env.globals['url_for_lang'] = url_for_lang
 app.secret_key = environ['APPSECRET']
 
 login_manager = LoginManager(app)

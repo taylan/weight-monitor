@@ -22,6 +22,10 @@ msgstr "Çıkış"
 msgid "Login"
 msgstr "Giriş"
 
+#: templates/layout.html:53
+msgid "Language"
+msgstr "Dil Seçimi"
+
 #: templates/layout.html:38 templates/login.html:14 templates/register.html:2
 #: templates/register.html:19
 msgid "Register"
