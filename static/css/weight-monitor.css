@@ -134,3 +134,20 @@ body {
     display: inline-block;
     background: transparent url('/static/img/bw-icon.png');
 }
+
+.flag {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    margin-bottom: -6px;
+    line-height: 14px;
+    background-repeat: no-repeat;
+}
+
+.flag-tr {
+    background: transparent url('/static/img/flag-tr.png') no-repeat;
+}
+
+.flag-en {
+    background: transparent url('/static/img/flag-en.png') no-repeat;
+}

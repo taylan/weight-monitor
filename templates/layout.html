@@ -47,12 +47,13 @@
     <div class="container">
         <span class="footer-copyright pull-left">© 2014 <a href="https://github.com/vape/weight-monitor">@vape</a></span>
         <span class="footer-icon-container pull-left text-center"><a href="/" title="WeightMon" id="footer-icon"></a></span>
-        <span class="footer-lang-sel pull-right text-right">
-            <div class="btn-group dropup">
+        <span class="footer-lang-sel pull-right">
+            <div class="btn-group dropup pull-right">
               <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">{{ _('Language') }} <span class="caret"></span></button>
               <ul class="dropdown-menu">
-                <li><a href="{{ url_for_lang('tr') }}">Türkçe</a></li>
-                <li><a href="{{ url_for_lang('en') }}">English</a></li>
+                  {% for l in LANGUAGES %}
+                      <li><a href="{{ url_for_lang(l) }}"><i class="flag flag-{{ l }}"></i> {{ lang_name(l) }}</a></li>
+                  {% endfor %}
               </ul>
             </div>
         </span>
