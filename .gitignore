@@ -44,6 +44,9 @@ nosetests.xml
 # virtualenv
 _ENV
 
+#webassets
+*.webassets-cache
+
 # Project specific
 # the env.yaml file contains the database credentials, so it should not go into source control
 env.yaml

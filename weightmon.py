@@ -14,13 +14,15 @@ from sqlalchemy.sql import exists
 from sqlalchemy import and_
 from flask.ext.compress import Compress
 from flask_babel import Babel, gettext
+from flask.ext.assets import Environment, Bundle
 
 
 period_lengths = {'last-week': 7, 'last-month': 30, 'last-year': 365, 'all-time': 100000}
 period_titles = {7: 'Last Week', 30: 'Last Month', 365: 'Last Year', 100000: 'All Time'}
 
 app = Flask(__name__)
-app.config['COMPRESS_DEBUG'] = True
+app.config['COMPRESS_DEBUG'] = is_debug()
+app.config['ASSETS_DEBUG'] = is_debug()
 app.jinja_env.globals['now'] = datetime.now()
 app.jinja_env.globals['period_lengths'] = period_lengths
 app.jinja_env.globals['period_titles'] = period_titles
@@ -33,6 +35,10 @@ login_manager.login_message = login_msg_markup
 
 Compress(app)
 babel = Babel(app)
+
+assets = Environment(app)
+assets.register('all_js', Bundle('js/jquery-2.0.3.min.js', 'js/bootstrap.min.js', 'js/picker.js', 'js/picker.date.js', 'js/bootstrap-editable.min.js', 'js/weight-monitor.js', filters='rjsmin', output='gen/weightmon-packed.js'))
+assets.register('all_css', Bundle('css/bootstrap.min.css', 'css/pickadate.css', 'css/pickadate.date.css', 'css/bootstrap-editable.css', 'css/weight-monitor.css', output='gen/weightmon-packed.css'))
 
 
 @babel.localeselector

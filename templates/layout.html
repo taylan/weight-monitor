@@ -8,11 +8,12 @@
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon.ico') }}">
     <link rel="apple-touch-icon" sizes="144x144"
           href="{{ url_for('static', filename='img/apple-touch-icon-precomposed.png') }}"/>
-    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
-    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/pickadate.css') }}">
-    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/pickadate.date.css') }}">
-    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/bootstrap-editable.css') }}">
-    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/weight-monitor.css') }}">
+{% assets 'all_css' %}<link rel=stylesheet type=text/css href="{{ ASSET_URL }}">{% endassets %}
+{#    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/bootstrap.min.css') }}">#}
+{#    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/pickadate.css') }}">#}
+{#    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/pickadate.date.css') }}">#}
+{#    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/bootstrap-editable.css') }}">#}
+{#    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/weight-monitor.css') }}">#}
 </head>
 <body>
 <div class="navbar navbar-inverse" role="navigation">
@@ -46,12 +47,7 @@
     {% block body %}{% endblock %}
 </div>
 
-<script type="text/javascript" src="{{ url_for('static', filename='js/jquery-2.0.3.min.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='js/picker.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='js/picker.date.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap-editable.min.js') }}"></script>
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='js/weight-monitor.js') }}"></script>
+{% assets 'all_js' %}<script type="text/javascript" src="{{ ASSET_URL }}"></script>{% endassets %}
 </body>
 </html>
