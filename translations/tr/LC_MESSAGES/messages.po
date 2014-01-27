@@ -1,7 +1,5 @@
-#: weightmon.py:31
-msgid ""
-"Please log in to access this page. Not a member? Register <a "
-"href=\"{0}\">here</a>."
+#: weightmon.py:32
+msgid "Please log in to access this page. Not a member? Register <a href=\"{0}\">here</a>."
 msgstr "Uygulamayı kullanmak için giriş yapın. Üye değil misiniz? Kaydolmak için <a \"href=\"{0}\">tıklayın</a>."
 
 #: weightmon.py:76

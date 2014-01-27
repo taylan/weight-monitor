@@ -61,7 +61,7 @@ def before_request():
 
 @app.after_request
 def after_request(resp):
-    resp.set_cookie('lang', value=g.lang, max_age=timedelta(days=120).seconds, httponly=True)
+    resp.set_cookie('lang', value=g.lang, expires=int((datetime.now() + timedelta(days=365)).timestamp()), httponly=True)
     return resp
 
 
