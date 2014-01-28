@@ -1,3 +1,11 @@
+function shakeWeightField(clear){
+    $('#weight').parent().addClass('has-error');
+    $('#weight').addClass('flash animated').one('webkitAnimationEnd mozAnimationEnd oAnimationEnd animationEnd', function () {
+        $(this).val(clear ? '' : $(this).val()).removeClass('flash animated');
+        $(this).parent().removeClass('has-error');
+    });
+}
+
 function saveWeight(u, d, l, r) {
     $.post(u, d)
         .done(function (data) {
@@ -5,11 +13,7 @@ function saveWeight(u, d, l, r) {
                 window.location = '/';
             }
             else {
-                $('#weight').parent().addClass('has-error');
-                $('#weight').addClass('flash animated').one('webkitAnimationEnd mozAnimationEnd oAnimationEnd animationEnd', function () {
-                    $(this).val('').removeClass('flash animated');
-                    $(this).parent().removeClass('has-error');
-                });
+                shakeWeightField(true);
             }
         }).always(function () {
             l.stop();
@@ -28,8 +32,10 @@ $(document).ready(function () {
     $("#weight-form").submit(function (e) {
         e.preventDefault();
         var w = $.trim($("#weight").val());
-        if (!w)
+        if (!w || !parseFloat(w) || w.indexOf(',') > -1) {
+            shakeWeightField(false);
             return;
+        }
         var url = $(this).attr('action');
         var data = $(this).serialize();
         var l = Ladda.create(document.querySelector('#submit-button'));

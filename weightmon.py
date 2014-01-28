@@ -122,7 +122,7 @@ def logout():
 def save_measurement():
     try:
         date_val = datetime.strptime(request.form.get('d', request.form.get('pk', '')), '%Y-%m-%d')
-        weight_val = float(request.form.get('v', request.form.get('value', '')))
+        weight_val = float(request.form.get('v', request.form.get('value', '')).replace(',', '.'))
     except (ValueError, HTTPException):
         return jsonify({'r': False}) if request.headers.get('X-Requested-With', '') else redirect(request.referrer)
 
