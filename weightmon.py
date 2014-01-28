@@ -33,8 +33,6 @@ app.secret_key = environ['APPSECRET']
 
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
-login_msg_markup = Markup(gettext('Please log in to access this page. Not a member? Register <a href="{0}">here</a>.').format('/register'))
-login_manager.login_message = login_msg_markup
 
 Compress(app)
 babel = Babel(app)
@@ -61,6 +59,7 @@ def _calculate_diffs(measurements):
 def before_request():
     g.user = current_user
     g.lang = request.args.get('hl', request.cookies.get('lang', '')) or request.accept_languages.best_match(LANGUAGES)
+    login_manager.login_message = Markup(gettext('login_message').format('/register'))
 
 
 @app.after_request

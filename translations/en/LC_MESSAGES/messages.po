@@ -1,6 +1,6 @@
 #: weightmon.py:62
 msgid "login_message"
-msgstr ""
+msgstr "Please log in to access this page. Not a member? Register <a href=\"{0}\">here</a>."
 
 #: weightmon.py:90
 msgid "Incorrect email or password."

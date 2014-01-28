@@ -1,8 +1,8 @@
-#: weightmon.py:32
-msgid "Please log in to access this page. Not a member? Register <a href=\"{0}\">here</a>."
+#: weightmon.py:62
+msgid "login_message"
 msgstr "Uygulamayı kullanmak için giriş yapın. Üye değil misiniz? Kaydolmak için <a \"href=\"{0}\">tıklayın</a>."
 
-#: weightmon.py:76
+#: weightmon.py:790
 msgid "Incorrect email or password."
 msgstr "Hatalı e-posta veya şifre."
 
