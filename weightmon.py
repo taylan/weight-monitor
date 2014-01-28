@@ -36,8 +36,8 @@ Compress(app)
 babel = Babel(app)
 
 assets = Environment(app)
-assets.register('all_js', Bundle('js/jquery-2.0.3.min.js', 'js/bootstrap.min.js', 'js/picker.js', 'js/picker.date.js', 'js/bootstrap-editable.min.js', 'js/weight-monitor.js', filters='rjsmin', output='gen/weightmon-packed.js'))
-assets.register('all_css', Bundle('css/bootstrap.min.css', 'css/pickadate.css', 'css/pickadate.date.css', 'css/bootstrap-editable.css', 'css/weight-monitor.css', output='gen/weightmon-packed.css'))
+assets.register('all_js', Bundle('js/jquery-2.0.3.min.js', 'js/bootstrap.min.js', 'js/picker.js', 'js/picker.date.js', 'js/bootstrap-editable.min.js', 'js/spin.min.js', 'js/ladda.min.js', 'js/weight-monitor.js', filters='rjsmin', output='gen/weightmon-packed.js'))
+assets.register('all_css', Bundle('css/bootstrap.min.css', 'css/pickadate.css', 'css/pickadate.date.css', 'css/bootstrap-editable.css', 'css/ladda-themeless.min.css', 'css/weight-monitor.css', output='gen/weightmon-packed.css'))
 
 
 @babel.localeselector

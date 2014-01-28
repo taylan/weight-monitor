@@ -1,14 +1,16 @@
-function saveWeight(u, d, r) {
+function saveWeight(u, d, l, r) {
     $.post(u, d)
-        .done(function(data) {
+        .done(function (data) {
             console.log('save done', data);
             if (r) {
                 window.location = '/';
             }
+        }).always(function () {
+            l.stop();
         });
 }
 
-$(document).ready(function() {
+$(document).ready(function () {
     $('#input-date').pickadate({
         format: 'yyyy-mm-dd',
         formatSubmit: 'yyyy-mm-dd',
@@ -17,9 +19,18 @@ $(document).ready(function() {
         clear: false
     });
 
-    $("#weight-form").submit(function(e) {
+    $("#weight-form").submit(function (e) {
         e.preventDefault();
-        saveWeight($(this).attr('action'), $(this).serialize(), true);
+        var w = $.trim($("#weight").val());
+        if(!w)
+            return;
+        var url = $(this).attr('action');
+        var data = $(this).serialize();
+        var l = Ladda.create(document.querySelector('#submit-button'));
+        l.start();
+        setTimeout(function(){
+            saveWeight(url, data, l, true);
+        }, 300);
     });
 
     $(".weight-table .weight-value").editable({
@@ -36,7 +47,7 @@ $(document).ready(function() {
 
     if ($('.weight-table').length > 0) {
         var chartData = [];
-        $('.weight-table .weight-value').each(function() {
+        $('.weight-table .weight-value').each(function () {
             chartData.push([$(this).data('pk').substr(2), parseFloat($(this).text())]);
         });
         chartData.reverse();
