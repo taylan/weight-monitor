@@ -1,9 +1,15 @@
 function saveWeight(u, d, l, r) {
     $.post(u, d)
         .done(function (data) {
-            console.log('save done', data);
-            if (r) {
+            if (data && data.r && r) {
                 window.location = '/';
+            }
+            else {
+                $('#weight').parent().addClass('has-error');
+                $('#weight').addClass('flash animated').one('webkitAnimationEnd mozAnimationEnd oAnimationEnd animationEnd', function () {
+                    $(this).val('').removeClass('flash animated');
+                    $(this).parent().removeClass('has-error');
+                });
             }
         }).always(function () {
             l.stop();
@@ -22,13 +28,13 @@ $(document).ready(function () {
     $("#weight-form").submit(function (e) {
         e.preventDefault();
         var w = $.trim($("#weight").val());
-        if(!w)
+        if (!w)
             return;
         var url = $(this).attr('action');
         var data = $(this).serialize();
         var l = Ladda.create(document.querySelector('#submit-button'));
         l.start();
-        setTimeout(function(){
+        setTimeout(function () {
             saveWeight(url, data, l, true);
         }, 300);
     });

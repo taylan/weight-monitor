@@ -37,7 +37,7 @@ babel = Babel(app)
 
 assets = Environment(app)
 assets.register('all_js', Bundle('js/jquery-2.0.3.min.js', 'js/bootstrap.min.js', 'js/picker.js', 'js/picker.date.js', 'js/bootstrap-editable.min.js', 'js/spin.min.js', 'js/ladda.min.js', 'js/weight-monitor.js', filters='rjsmin', output='gen/weightmon-packed.js'))
-assets.register('all_css', Bundle('css/bootstrap.min.css', 'css/pickadate.css', 'css/pickadate.date.css', 'css/bootstrap-editable.css', 'css/ladda-themeless.min.css', 'css/weight-monitor.css', output='gen/weightmon-packed.css'))
+assets.register('all_css', Bundle('css/bootstrap.min.css', 'css/pickadate.css', 'css/pickadate.date.css', 'css/bootstrap-editable.css', 'css/ladda-themeless.min.css', 'css/animate.min.css', 'css/weight-monitor.css', output='gen/weightmon-packed.css'))
 
 
 @babel.localeselector
@@ -56,7 +56,7 @@ def _calculate_diffs(measurements):
 @app.before_request
 def before_request():
     g.user = current_user
-    g.lang = request.args.get('hl', request.cookies.get('lang', '')) or request.accept_languages.best_match(LANGUAGES)
+    g.lang = request.args.get('hl', request.cookies.get('lang', '')) or request.accept_languages.best_match(LANGUAGES) or LANGUAGES[0]
     login_manager.login_message = Markup(gettext('login_message').format('/register'))
 
 
@@ -124,7 +124,7 @@ def save_measurement():
         date_val = datetime.strptime(request.form.get('d', request.form.get('pk', '')), '%Y-%m-%d')
         weight_val = float(request.form.get('v', request.form.get('value', '')))
     except (ValueError, HTTPException):
-        return jsonify(r='e') if request.headers.get('X-Requested-With', '') else redirect(request.referrer)
+        return jsonify({'r': False}) if request.headers.get('X-Requested-With', '') else redirect(request.referrer)
 
     m = dbsession.query(Measurement).filter(
         and_(Measurement.measurement_date == date_val, Measurement.user_id == current_user.id)).first() or Measurement(
@@ -132,7 +132,7 @@ def save_measurement():
     m.value = weight_val
     dbsession.add(m)
     dbsession.commit()
-    return jsonify(r='e') if request.headers.get('X-Requested-With', '') else redirect(request.referrer)
+    return jsonify({'r': True}) if request.headers.get('X-Requested-With', '') else redirect(request.referrer)
 
 
 @app.route('/', methods=['GET'])
