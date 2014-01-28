@@ -26,8 +26,8 @@
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ g.user.first_name }} <b
                                 class="caret"></b></a>
                         <ul class="dropdown-menu">
-                            {% for k, l in period_lengths|dictsort(by='value') %}
-                                <li><a href="{{ url_for('index', period=k) }}">{{ period_titles[l] }}</a></li>
+                            {% for k, l in periods|dictsort(by='value') %}
+                                <li><a href="{{ url_for('index', period=k) }}">{{ get_translation(k) }}</a></li>
                             {% endfor %}
                             <li class="divider"></li>
                             <li><a href="{{ url_for('logout') }}">{{ _('Logout') }}</a></li>
@@ -47,7 +47,7 @@
 </div>
 <div id="footer">
     <div class="container">
-        <span class="footer-copyright pull-left">© 2014 <a class="visible-xs" href="https://github.com/vape/weight-monitor">@vape</a> <a class="hidden-xs" href="https://github.com/vape/weight-monitor">Taylan Aydınlı</a></span>
+        <span class="footer-copyright pull-left">© 2014 <a class="visible-xs" target="_blank" href="https://github.com/vape/weight-monitor">@vape</a> <a class="hidden-xs" target="_blank" href="https://github.com/vape/weight-monitor">Taylan Aydınlı</a></span>
         <span class="footer-icon-container pull-left text-center"><a href="/" title="WeightMon" id="footer-icon"></a></span>
         <span class="footer-lang-sel pull-right">
             <div class="btn-group dropup pull-right">

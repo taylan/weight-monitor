@@ -1,61 +1,14 @@
-#: weightmon.py:62
 msgid "login_message"
 msgstr "Please log in to access this page. Not a member? Register <a href=\"{0}\">here</a>."
 
-#: weightmon.py:90
-msgid "Incorrect email or password."
-msgstr ""
+msgid "last-week"
+msgstr "Last Week"
 
-#: forms/__init__.py:22
-msgid "Passwords must match"
-msgstr ""
+msgid "last-month"
+msgstr "Last Month"
 
-#: templates/index.html:9
-msgid "Enter date"
-msgstr ""
+msgid "last-year"
+msgstr "Last Year"
 
-#: templates/index.html:13 templates/measurement_list.html:14
-msgid "Weight"
-msgstr ""
-
-#: templates/index.html:15
-msgid "Save Weight"
-msgstr ""
-
-#: templates/login.html:2 templates/login.html:13
-msgid "Login"
-msgstr ""
-
-#: templates/login.html:8 templates/register.html:11
-msgid "Email"
-msgstr ""
-
-#: templates/login.html:11 templates/register.html:14
-msgid "Password"
-msgstr ""
-
-#: templates/login.html:14 templates/register.html:2 templates/register.html:19
-msgid "Register"
-msgstr ""
-
-#: templates/measurement_list.html:9 templates/measurement_list.html:15
-msgid "Diff"
-msgstr ""
-
-#: templates/measurement_list.html:13
-msgid "Date"
-msgstr ""
-
-#: templates/register.html:8
-msgid "Name"
-msgstr ""
-
-#: templates/register.html:17
-msgid "Password confirm"
-msgstr ""
-
-#: utils/formutils.py:8
-#, python-format
-msgid "Error in the %(field_name) field - %(error)"
-msgstr ""
-
+msgid "all-time"
+msgstr "All Time"

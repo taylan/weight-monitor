@@ -1,14 +1,14 @@
 from forms import LoginForm, RegisterForm
 from markupsafe import Markup
 from orm import dbsession, Measurement, User
-from config import is_debug, LANGUAGES
+from config import is_debug, LANGUAGES, PERIODS
 from flask import Flask, render_template, request, jsonify, redirect, g, url_for, flash
 from flask.ext.login import LoginManager, current_user, login_user, logout_user, login_required
 from datetime import datetime, timedelta
 from werkzeug.exceptions import HTTPException
 from utils.measurement_data import MeasurementData
 from utils.formutils import write_errors_to_flash
-from utils.templatehelpers import url_for_lang, lang_name
+from utils.templatehelpers import url_for_lang, lang_name, get_translation
 from os import environ
 from passlib.hash import bcrypt
 from sqlalchemy.sql import exists
@@ -17,17 +17,15 @@ from flask.ext.compress import Compress
 from flask_babel import Babel, gettext
 from flask.ext.assets import Environment, Bundle
 
-period_lengths = {'last-week': 7, 'last-month': 30, 'last-year': 365, 'all-time': 100000}
-period_titles = {7: 'Last Week', 30: 'Last Month', 365: 'Last Year', 100000: 'All Time'}
 
 app = Flask(__name__)
 app.config['COMPRESS_DEBUG'] = is_debug()
 app.config['ASSETS_DEBUG'] = is_debug()
 app.jinja_env.globals['now'] = datetime.now()
-app.jinja_env.globals['period_lengths'] = period_lengths
-app.jinja_env.globals['period_titles'] = period_titles
+app.jinja_env.globals['periods'] = PERIODS
 app.jinja_env.globals['url_for_lang'] = url_for_lang
 app.jinja_env.globals['lang_name'] = lang_name
+app.jinja_env.globals['get_translation'] = get_translation
 app.jinja_env.globals['LANGUAGES'] = LANGUAGES
 app.secret_key = environ['APPSECRET']
 
@@ -141,11 +139,11 @@ def save_measurement():
 @app.route('/p/<period>', methods=['GET'])
 @login_required
 def index(period='last-week'):
-    p = period_lengths.get(period, 7)
+    p = PERIODS.get(period, 7)
     ms = dbsession.query(Measurement).filter(Measurement.user_id == g.user.id).order_by(
         Measurement.measurement_date.desc()).limit(p).all()
     _calculate_diffs(ms)
-    md = MeasurementData(period_titles[p], ms)
+    md = MeasurementData(gettext(period), ms)
 
     return render_template('index.html', measurement_data=md)
 

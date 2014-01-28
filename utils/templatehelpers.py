@@ -1,5 +1,6 @@
 from babel import Locale
 from flask import request, url_for
+from flask.ext.babel import gettext
 
 
 def url_for_lang(lang):
@@ -10,3 +11,11 @@ def url_for_lang(lang):
 
 def lang_name(code):
     return Locale(code).languages[code]
+
+
+def get_translation(msgid):
+    return gettext(msgid)
+
+
+def slugify(s):
+    return s.lower().replace(' ', '-')
