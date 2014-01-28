@@ -16,7 +16,7 @@
     <div class="navbar navbar-inverse" role="navigation">
         <div class="container">
             <div class="navbar-header navbar-left">
-                <a class="navbar-brand" href="/"><span class="glyphicon glyphicon-dashboard"></span> Weight Monitor</a>
+                <a class="navbar-brand" href="/"><img id="head-icon" src="/static/img/head-icon.png"> Weight Monitor</a>
             </div>
             <ul class="nav navbar-nav navbar-right">
                 {% if g.user and g.user.is_authenticated() %}
@@ -45,7 +45,7 @@
 </div>
 <div id="footer">
     <div class="container">
-        <span class="footer-copyright pull-left">© 2014 <a href="https://github.com/vape/weight-monitor">@vape</a></span>
+        <span class="footer-copyright pull-left">© 2014 <a class="visible-xs" href="https://github.com/vape/weight-monitor">@vape</a> <a class="hidden-xs" href="https://github.com/vape/weight-monitor">Taylan Aydınlı</a></span>
         <span class="footer-icon-container pull-left text-center"><a href="/" title="WeightMon" id="footer-icon"></a></span>
         <span class="footer-lang-sel pull-right">
             <div class="btn-group dropup pull-right">

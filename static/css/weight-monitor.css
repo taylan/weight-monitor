@@ -12,6 +12,12 @@ body {
     text-align: center;
 }
 
+#head-icon {
+    width: 20px;
+    height: 20px;
+    margin-top: -3px;
+}
+
 .navbar {
     min-height: 0;
     border-radius: 0;
@@ -41,7 +47,7 @@ body {
 @media (max-width: 767px) {
     .navbar-brand {
         font-size: 12px;
-        padding: 4px 15px;
+        padding: 4px 10px;
     }
 
     .navbar-inverse .navbar-brand {
@@ -82,6 +88,13 @@ body {
 
     .alert {
         padding: 10px;
+    }
+
+    .visible-xs {
+        display: inline !important;
+    }
+    .hidden-xs {
+        display: none!important;
     }
 }
 
@@ -129,10 +142,11 @@ body {
 }
 
 #footer-icon {
-    height: 24px;
-    width: 24px;
+    height: 20px;
+    width: 20px;
     display: inline-block;
     background: transparent url('/static/img/bw-icon.png');
+    margin-top: 3px;
 }
 
 .flag {
@@ -150,4 +164,10 @@ body {
 
 .flag-en {
     background: transparent url('/static/img/flag-en.png') no-repeat;
+}
+
+@media (min-width: 767px) {
+        .hidden-xs {
+        display: inline !important;
+    }
 }
