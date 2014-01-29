@@ -18,6 +18,11 @@ from flask_babel import Babel, gettext
 from flask.ext.assets import Environment, Bundle
 
 
+def get_send_file_max_age(self, name):
+    return 31449600
+
+Flask.get_send_file_max_age = get_send_file_max_age
+
 app = Flask(__name__)
 app.config['COMPRESS_DEBUG'] = is_debug()
 app.config['ASSETS_DEBUG'] = is_debug()
