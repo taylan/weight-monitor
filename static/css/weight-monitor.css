@@ -27,10 +27,6 @@ body {
     padding: 8px 15px;
 }
 
-.navbar-nav {
-    margin-top: 1px;
-}
-
 .weight-value {
     border-bottom: 0 !important;
     color: inherit;
