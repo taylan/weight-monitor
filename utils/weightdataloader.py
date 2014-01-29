@@ -15,10 +15,8 @@ def _get_mfp_data():
     print('Getting MyFitnessPal data (from www.myfitnesspal.com)')
     mfp_login_url = 'https://www.myfitnesspal.com/account/login'
     login_req = post(mfp_login_url, {'username': 'taylanaydinli', 'password': environ['MFPPASS']}, verify=False)
-    session_id = login_req.cookies['_session_id']
-
     mfp_data_url = 'http://www.myfitnesspal.com/reports/results/progress/1/365.json?report_name=Weight'
-    resp = get(mfp_data_url, cookies=dict(_session_id=session_id)).json()
+    resp = get(mfp_data_url, cookies=dict(_session_id=login_req.cookies['_session_id'])).json()
 
     weight_data = [x for x in resp['data'] if x['total'] > 0]
 
