@@ -114,7 +114,7 @@ def register():
         dbsession.add(user)
         dbsession.commit()
         login_user(user, remember=True)
-        redirect('/')
+        return redirect('/')
     else:
         write_errors_to_flash(form)
 
