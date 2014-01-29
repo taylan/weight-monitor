@@ -45,6 +45,10 @@ def get_locale():
     return g.lang
 
 
+def _user_is_authenticated():
+    return g.user and g.user.is_authenticated()
+
+
 def _calculate_diffs(measurements):
     for i, m in reversed(list(enumerate(measurements))):
         if i == len(measurements) - 1:
@@ -78,6 +82,9 @@ def load_user(user_id):
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    if _user_is_authenticated():
+        return redirect('/')
+
     form = LoginForm()
     if form.validate_on_submit():
         user = _verify_user(form.email.data, form.password.data)
@@ -94,6 +101,9 @@ def login():
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+    if _user_is_authenticated():
+        return redirect('/')
+
     form = RegisterForm()
     if form.validate_on_submit():
         if dbsession.query(exists().where(User.email == form.email.data)).scalar():
