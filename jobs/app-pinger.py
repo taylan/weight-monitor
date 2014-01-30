@@ -1,4 +1,5 @@
 from urllib import request
 from os import environ
+from urllib.parse import urljoin
 
-request.urlopen(environ['APPURL']).read()
+request.urlopen(urljoin(environ['APPURL'], 'static/dummy.html')).read()
