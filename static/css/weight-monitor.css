@@ -92,6 +92,11 @@ body {
     .hidden-xs {
         display: none!important;
     }
+
+    #report-period-selector .btn-sm {
+        font-size: 11px;
+        padding: 3px;
+    }
 }
 
 #chart-container {
@@ -166,4 +171,9 @@ body {
         .hidden-xs {
         display: inline !important;
     }
+}
+
+#report-period-selector {
+    margin-top: 10px;
+    margin-bottom: 10px;
 }

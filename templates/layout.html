@@ -26,10 +26,6 @@
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ g.user.first_name }} <b
                                 class="caret"></b></a>
                         <ul class="dropdown-menu">
-                            {% for k, l in periods|dictsort(by='value') %}
-                                <li><a href="{{ url_for('index', period=k) }}">{{ get_translation(k) }}</a></li>
-                            {% endfor %}
-                            <li class="divider"></li>
                             <li><a href="{{ url_for('logout') }}">{{ _('Logout') }}</a></li>
                         </ul>
                     </li>

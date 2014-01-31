@@ -68,7 +68,7 @@ $(document).ready(function () {
         var options = {
             title: $.trim($($('.weight-table th')[0]).text()),
             legend: { position: 'none' },
-            chartArea: { right: 0, left: '12%', top: 30, width: "85%", height: '80%' }
+            chartArea: { right: 0, left: '12%', top: 40, width: "85%", height: '80%' }
         };
 
         function drawChart() {

@@ -158,7 +158,7 @@ def index(period='last-week'):
     ms = dbsession.query(Measurement).filter(Measurement.user_id == g.user.id).order_by(
         Measurement.measurement_date.desc()).limit(p).all()
     _calculate_diffs(ms)
-    md = MeasurementData(gettext(period), ms)
+    md = MeasurementData(gettext(period), ms, period)
 
     return render_template('index.html', measurement_data=md)
 

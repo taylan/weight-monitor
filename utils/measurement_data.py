@@ -1,7 +1,8 @@
 class MeasurementData(object):
-    def __init__(self, title, data):
+    def __init__(self, title, data, period):
         self._title = title
         self._data = data
+        self._period = period
 
     @property
     def title(self):
@@ -10,6 +11,10 @@ class MeasurementData(object):
     @property
     def data(self):
         return self._data
+
+    @property
+    def period(self):
+        return self._period
 
     @property
     def has_data(self):
