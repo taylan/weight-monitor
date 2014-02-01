@@ -3,12 +3,15 @@ from datetime import datetime
 from orm import dbsession, Measurement, User
 from json import dumps
 from utils.utils import execute_command, set_current_dir, _remove_files
-
+from random import choice
 
 set_current_dir(__file__)
 now = datetime.now().date()
 short_timestamp = now.strftime('%Y-%m-%d')
 dest_timestamp = now.strftime('%Y-%m-%d_%H-%M-%S_%f')
+disappoint_images = ['RuYH0', 'WSmpayC', 'tPzTdA4', 'ldtpOON', 'sYquW0y', 'JKHTl', 'Opv98', 'S3VpN', 't5BwT',
+                     'xcmP1', '1vxHz', 'D9dQr', 'sez4T', 'YDvsK', 'qkfZa', 'wm9Srgj', 'JR0JX8b', 'SEpCU',
+                     'KWfNGxQ', 'bEdpq', 'IZD3z', 'zmPFF', 'm1Q72', '2JA8F', 'Zv3lZ', 'z0PaK']
 
 
 def prepare_nag_mail_content(last_msmt):
@@ -16,7 +19,8 @@ def prepare_nag_mail_content(last_msmt):
         template = nag_tpl.read()
 
     return template.replace('[LAST_ENTRY_DATE]', last_msmt.strftime('%Y-%m-%d')).replace('[DAY_COUNT]', str(
-        days_since_last)).replace('[WEIGHT_MONITOR_URL]', environ['APPURL'])
+        days_since_last)).replace('[WEIGHT_MONITOR_URL]', environ['APPURL']) \
+        .replace('[DISAPPOINT_IMAGE_SRC]', 'http://i.imgur.com/{0}.gif'.format(choice(disappoint_images)))
 
 
 def create_and_save_nag_mail_json(mail_json_fn):
