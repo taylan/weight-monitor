@@ -3,7 +3,9 @@ from datetime import datetime
 from orm import dbsession, Measurement, User
 from json import dumps
 from utils.utils import execute_command, set_current_dir, _remove_files
+from utils.batchhelpers import get_translations
 from random import choice
+
 
 set_current_dir(__file__)
 now = datetime.now().date()
@@ -14,19 +16,23 @@ disappoint_images = ['RuYH0', 'WSmpayC', 'tPzTdA4', 'ldtpOON', 'sYquW0y', 'JKHTl
                      'KWfNGxQ', 'bEdpq', 'IZD3z', 'zmPFF', 'm1Q72', '2JA8F', 'Zv3lZ', 'z0PaK']
 
 
-def prepare_nag_mail_content(last_msmt):
+def prepare_nag_mail_content(last_msmt, t):
     with open(path.join(getcwd(), 'nag_mail_template.html')) as nag_tpl:
         template = nag_tpl.read()
 
-    return template.replace('[LAST_ENTRY_DATE]', last_msmt.strftime('%Y-%m-%d')).replace('[DAY_COUNT]', str(
-        days_since_last)).replace('[WEIGHT_MONITOR_URL]', environ['APPURL']) \
+    return template \
+        .replace('[MAIL_HEADER]', t.ugettext('Weight Monitor Warning')) \
+        .replace('[NO_MEASUREMENTS_SINCE]',
+                 t.ugettext('No weight measurements since %s (%d days)') % (last_msmt.strftime('%Y-%m-%d'), days_since_last)) \
+        .replace('[CLICK_TO_ENTER_WEIGHT]', t.ugettext('Click to enter weight')) \
+        .replace('[WEIGHT_MONITOR_URL]', environ['APPURL']) \
         .replace('[DISAPPOINT_IMAGE_SRC]', 'http://i.imgur.com/{0}.gif'.format(choice(disappoint_images)))
 
 
-def create_and_save_nag_mail_json(mail_json_fn):
+def create_and_save_nag_mail_json(mail_json_fn, t):
     mail_data = dict()
-    mail_data['Subject'] = {'Data': 'Weight Monitor Warning', 'Charset': 'UTF-8'}
-    mail_data['Body'] = {'Html': {'Data': prepare_nag_mail_content(last_measurement), 'Charset': 'UTF-8'}}
+    mail_data['Subject'] = {'Data': t.ugettext('Weight Monitor Warning'), 'Charset': 'UTF-8'}
+    mail_data['Body'] = {'Html': {'Data': prepare_nag_mail_content(last_measurement, t), 'Charset': 'UTF-8'}}
 
     with open(mail_json_fn, mode='w') as mail_content_json:
         mail_content_json.write(dumps(mail_data))
@@ -48,12 +54,13 @@ for u in users:
 
     last_measurement = last_measurement[0].date()
     days_since_last = (now - last_measurement).days
+    t = get_translations(u.language_preference)
 
     if days_since_last < 2:
         continue
 
     mail_json_file_name = path.join(getcwd(), '{0}_{1}_nag_mail.json'.format(dest_timestamp, u.id))
-    create_and_save_nag_mail_json(mail_json_file_name)
+    create_and_save_nag_mail_json(mail_json_file_name, t)
 
     not_recipients_filename = path.join(getcwd(), 'notification-mail-recipients_{0}_{1}.json'.format(dest_timestamp,
                                                                                                      u.id))

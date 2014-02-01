@@ -57,3 +57,12 @@ msgstr "Son 1 Yıl"
 
 msgid "all-time"
 msgstr "Tüm Kayıtlar"
+
+msgid "Weight Monitor Warning"
+msgstr "Weight Monitor Uyarı"
+
+msgid "Click to enter weight"
+msgstr "Ağırlık girmek için tıkla"
+
+msgid "No weight measurements since %s (%d days)"
+msgstr "%s tarihinden beri (%d gün) ağırlık kaydı yapılmamış."

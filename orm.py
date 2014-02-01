@@ -2,7 +2,7 @@ from sqlalchemy import create_engine, Column, DateTime, Float, Integer, String, 
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from flask.ext.login import UserMixin
-from config import initialize_config, is_debug
+from config import initialize_config, is_debug, LANGUAGES
 from os import environ
 
 initialize_config()
@@ -17,10 +17,15 @@ class User(Base, UserMixin):
     name = Column(String(), nullable=False)
     email = Column(String(), nullable=False, index=True)
     password_hash = Column(String(), nullable=False)
+    lang = Column(String())
 
     @property
     def first_name(self):
         return self.name.split(' ')[0]
+
+    @property
+    def language_preference(self):
+        return self.lang or 'en'
 
     def __str__(self):
         return '{0} [1] ({2})'.format(self.name, self.id, self.email)

@@ -57,3 +57,12 @@ msgstr ""
 
 msgid "all-time"
 msgstr ""
+
+msgid "Weight Monitor Warning"
+msgstr ""
+
+msgid "Click to enter weight"
+msgstr ""
+
+msgid "No weight measurements since %s (%d days)"
+msgstr ""
