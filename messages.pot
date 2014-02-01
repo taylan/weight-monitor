@@ -66,3 +66,9 @@ msgstr ""
 
 msgid "No weight measurements since %s (%d days)"
 msgstr ""
+
+msgid "Weight Progress Report for %s"
+msgstr ""
+
+msgid "Full Report"
+msgstr ""

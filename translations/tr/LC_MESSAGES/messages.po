@@ -66,3 +66,9 @@ msgstr "Ağırlık girmek için tıkla"
 
 msgid "No weight measurements since %s (%d days)"
 msgstr "%s tarihinden beri (%d gün) ağırlık kaydı yapılmamış."
+
+msgid "Weight Progress Report for %s"
+msgstr "Durum Raporu (%s)"
+
+msgid "Full Report"
+msgstr "Tüm Rapor"

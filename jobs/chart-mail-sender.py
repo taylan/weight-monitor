@@ -6,6 +6,8 @@ from orm import dbsession, Measurement, User
 from sqlalchemy import desc
 from json import dumps
 from utils.utils import execute_command, copy_file_to_s3, set_current_dir, _remove_files
+from utils.batchhelpers import get_translations
+from config import PERIODS
 
 
 report_graph_template = """<table class='row'
@@ -47,7 +49,7 @@ now = datetime.now()
 dest_timestamp = now.strftime('%Y-%m-%d_%H-%M-%S_%f')
 short_timestamp = now.strftime('%Y-%m-%d')
 
-periods = {7: 'Last Week', 30: 'Last Month', 365: 'Last Year', 100000: 'All Time'}
+period_lengths = dict(zip(PERIODS.values(), PERIODS.keys()))
 
 
 def get_measurements(user_id, limit):
@@ -61,11 +63,10 @@ def get_chart_data(ms):
     return [[m.measurement_date.strftime('%y-%m-%d'), m.value] for m in ms]
 
 
-def prepare_and_save_chart_content(chart_content_template, chart_fn, user_id, period):
+def prepare_and_save_chart_content(chart_content_template, chart_fn, user_id, period, t):
     measurements = get_measurements(user_id, period)
     chart_data = get_chart_data(measurements)
     content = chart_content_template.replace('[CHART_DATA]', ', '.join(map(str, chart_data)))
-    content = content.replace('[CHART_TITLE]', periods[period])
 
     with open(chart_fn, mode='w') as dest_chart:
         dest_chart.write(content)
@@ -81,12 +82,12 @@ def save_chart_image(chart_fn, chart_img):
     copy_file_to_s3(chart_img)
 
 
-def prepare_chart_images(user_id):
-    for p in periods.keys():
+def prepare_chart_images(user_id, t):
+    for p in period_lengths.keys():
         chart_file = '{0}_{1}_{2}.html'.format(dest_timestamp, p, user_id)
         chart_img = '{0}_{1}_{2}.png'.format(dest_timestamp, p, user_id)
         chart_template = _get_chart_template()
-        prepare_and_save_chart_content(chart_template, chart_file, user_id, p)
+        prepare_and_save_chart_content(chart_template, chart_file, user_id, p, t)
         save_chart_image(chart_file, chart_img)
 
         _remove_files(chart_file, chart_img)
@@ -98,27 +99,30 @@ def _get_notification_mail_template():
         return notif_tpl.read()
 
 
-def get_graph_contents(user_id):
+def get_graph_contents(user_id, t):
     grphs = []
-    for p in sorted(periods.keys()):
+    for p in sorted(period_lengths.keys()):
         chart_img = '{0}_{1}_{2}.png'.format(dest_timestamp, p, user_id)
-        grphs.append(report_graph_template.replace('[PERIOD]', periods[p]).replace('[IMAGE_NAME]', chart_img))
+        grphs.append(report_graph_template.replace('[PERIOD]', t.ugettext(period_lengths[p])).replace('[IMAGE_NAME]', chart_img))
     return grphs
 
 
-def create_and_save_full_report(full_report_fn, user_id):
+def create_and_save_full_report(full_report_fn, user_id, t):
     template = _get_notification_mail_template()
-    graphs = get_graph_contents(user_id)
-    mail_content = template.replace('[REPORT_DATE]', short_timestamp).replace('[GRAPHS]', '\n'.join(graphs)).replace(
-        '[FULL_REPORT_NAME]', full_report_fn)
+    graphs = get_graph_contents(user_id, t)
+    cont = template\
+        .replace('[MAIL_HEADER]', t.ugettext('Weight Progress Report for %s') % short_timestamp)\
+        .replace('[GRAPHS]', '\n'.join(graphs))\
+        .replace('[FULL_REPORT]', t.ugettext('Full Report'))\
+        .replace('[FULL_REPORT_NAME]', full_report_fn)
     with open(path.join(getcwd(), full_report_fn), mode='w') as mail_cont:
-        mail_cont.write(mail_content)
-    return mail_content
+        mail_cont.write(cont)
+    return cont
 
 
 def create_and_save_mail_json(mail_json_fn, content):
     mail_data = dict()
-    mail_data['Subject'] = {'Data': 'Weight Monitor Report for {0}'.format(short_timestamp), 'Charset': 'UTF-8'}
+    mail_data['Subject'] = {'Data': t.ugettext('Weight Progress Report for %s') % short_timestamp, 'Charset': 'UTF-8'}
     mail_data['Body'] = {'Html': {'Data': content, 'Charset': 'UTF-8'}}
 
     with open(mail_json_fn, mode='w') as mail_content_json:
@@ -133,10 +137,11 @@ def create_and_save_notification_recipients_json(notif_recip_json_fn, recipient)
 
 users = dbsession.query(User).all()
 for u in users:
-    prepare_chart_images(u.id)
+    t = get_translations(u.language_preference)
+    prepare_chart_images(u.id, t)
 
     full_report_file_name = '{0}_{1}_mail.html'.format(dest_timestamp, u.id)
-    mail_content = create_and_save_full_report(full_report_file_name, u.id)
+    mail_content = create_and_save_full_report(full_report_file_name, u.id, t)
     copy_file_to_s3(full_report_file_name)
 
     mail_json_file_name = path.join(getcwd(), '{0}_{1}_mail.json'.format(dest_timestamp, u.id))

@@ -6,6 +6,7 @@ from os import path, environ
 LANGUAGES = ['tr', 'en']
 PERIODS = {'last-week': 7, 'last-month': 30, 'last-year': 365, 'all-time': 100000}
 
+
 def contains(small, big):
     for v in small:
         if v not in big:
