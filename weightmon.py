@@ -9,6 +9,7 @@ from werkzeug.exceptions import HTTPException
 from utils.measurement_data import MeasurementData
 from utils.formutils import write_errors_to_flash
 from utils.templatehelpers import url_for_lang, lang_name, get_translation
+from utils.data import get_measurement_data
 from os import environ
 from passlib.hash import bcrypt
 from sqlalchemy.sql import exists
@@ -52,14 +53,6 @@ def get_locale():
 
 def _user_is_authenticated():
     return g.user and g.user.is_authenticated()
-
-
-def _calculate_diffs(measurements):
-    for i, m in reversed(list(enumerate(measurements))):
-        if i == len(measurements) - 1:
-            m.diff = 0
-        else:
-            m.diff = m.value - measurements[i + 1].value
 
 
 @app.before_request
@@ -154,12 +147,7 @@ def save_measurement():
 @app.route('/p/<period>', methods=['GET'])
 @login_required
 def index(period='last-week'):
-    p = PERIODS.get(period, 7)
-    ms = dbsession.query(Measurement).filter(Measurement.user_id == g.user.id).order_by(
-        Measurement.measurement_date.desc()).limit(p).all()
-    _calculate_diffs(ms)
-    md = MeasurementData(gettext(period), ms, period)
-
+    md = get_measurement_data(period, gettext(period), g.user.id)
     return render_template('index.html', measurement_data=md)
 
 

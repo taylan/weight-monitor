@@ -45,7 +45,7 @@ class Measurement(Base):
         return '{0}: {1:.1f}kg'.format(self.measurement_date.strftime('%Y-%m-%d'), self.value)
 
     def __repr__(self):
-        return '{0}({1})'.format(self.__class__, self.measurement_date.strftime('%Y-%m-%d'))
+        return '{0}({1}, {2:.1f}kg)'.format(self.__class__, self.measurement_date.strftime('%Y-%m-%d'), self.value)
 
 
 Session = sessionmaker(bind=engine)
