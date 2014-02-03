@@ -1,12 +1,12 @@
+from datetime import datetime, timedelta
+
 from forms import LoginForm, RegisterForm
 from markupsafe import Markup
 from orm import dbsession, Measurement, User
 from config import is_debug, LANGUAGES, PERIODS
 from flask import Flask, render_template, request, jsonify, redirect, g, url_for, flash
 from flask.ext.login import LoginManager, current_user, login_user, logout_user, login_required
-from datetime import datetime, timedelta
 from werkzeug.exceptions import HTTPException
-from utils.measurement_data import MeasurementData
 from utils.formutils import write_errors_to_flash
 from utils.templatehelpers import url_for_lang, lang_name, get_translation
 from utils.data import get_measurement_data
@@ -21,6 +21,7 @@ from flask.ext.assets import Environment, Bundle
 
 def get_send_file_max_age(self, name):
     return 31449600
+
 
 Flask.get_send_file_max_age = get_send_file_max_age
 
@@ -42,8 +43,12 @@ Compress(app)
 babel = Babel(app)
 
 assets = Environment(app)
-assets.register('all_js', Bundle('js/jquery-2.0.3.min.js', 'js/bootstrap.min.js', 'js/picker.js', 'js/picker.date.js', 'js/bootstrap-editable.min.js', 'js/spin.min.js', 'js/ladda.min.js', 'js/weight-monitor.js', filters='rjsmin', output='gen/weightmon-packed.js'))
-assets.register('all_css', Bundle('css/bootstrap.min.css', 'css/pickadate.css', 'css/pickadate.date.css', 'css/bootstrap-editable.css', 'css/ladda-themeless.min.css', 'css/animate.min.css', 'css/weight-monitor.css', output='gen/weightmon-packed.css'))
+assets.register('all_js', Bundle('js/jquery-2.0.3.min.js', 'js/bootstrap.min.js', 'js/picker.js', 'js/picker.date.js',
+                                 'js/bootstrap-editable.min.js', 'js/spin.min.js', 'js/ladda.min.js',
+                                 'js/weight-monitor.js', filters='rjsmin', output='gen/weightmon-packed.js'))
+assets.register('all_css', Bundle('css/bootstrap.min.css', 'css/pickadate.css', 'css/pickadate.date.css',
+                                  'css/bootstrap-editable.css', 'css/ladda-themeless.min.css', 'css/animate.min.css',
+                                  'css/weight-monitor.css', output='gen/weightmon-packed.css'))
 
 
 @babel.localeselector
@@ -58,13 +63,15 @@ def _user_is_authenticated():
 @app.before_request
 def before_request():
     g.user = current_user
-    g.lang = request.args.get('hl', request.cookies.get('lang', '')) or request.accept_languages.best_match(LANGUAGES) or LANGUAGES[0]
+    g.lang = request.args.get('hl', request.cookies.get('lang', '')) or request.accept_languages.best_match(
+        LANGUAGES) or LANGUAGES[0]
     login_manager.login_message = Markup(gettext('login_message').format('/register'))
 
 
 @app.after_request
 def after_request(resp):
-    resp.set_cookie('lang', value=g.lang, expires=int((datetime.now() + timedelta(days=365)).timestamp()), httponly=True)
+    resp.set_cookie('lang', value=g.lang, expires=int((datetime.now() + timedelta(days=365)).timestamp()),
+                    httponly=True)
     return resp
 
 
@@ -105,7 +112,9 @@ def register():
     form = RegisterForm()
     if form.validate_on_submit():
         if dbsession.query(exists().where(User.email == form.email.data)).scalar():
-            warning_markup = Markup('User with email %(email) already exists. Click <a href="%(login_link)">here</a> to login.', email=form.email.data, login_link=url_for('login'))
+            warning_markup = Markup(
+                'User with email %(email) already exists. Click <a href="%(login_link)">here</a> to login.',
+                email=form.email.data, login_link=url_for('login'))
             flash(warning_markup, 'warning')
             return render_template('register.html', form=form)
         user = User(name=form.name.data, email=form.email.data, password_hash=bcrypt.encrypt(form.password.data))
@@ -136,7 +145,7 @@ def save_measurement():
 
     m = dbsession.query(Measurement).filter(
         and_(Measurement.measurement_date == date_val, Measurement.user_id == current_user.id)).first() or Measurement(
-            measurement_date=date_val, user_id=current_user.id)
+        measurement_date=date_val, user_id=current_user.id)
     m.value = weight_val
     dbsession.add(m)
     dbsession.commit()
