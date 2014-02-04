@@ -12,7 +12,7 @@ def _calculate_diffs(measurements):
             m.diff = m.value - measurements[i + 1].value
 
 
-def fill_measurement_data_gaps(ms, p):
+def _fill_measurement_data_gaps(ms, p):
     new_ms = []
     ms = list(reversed(ms))
     for i, m in enumerate(ms):
@@ -35,6 +35,6 @@ def get_measurement_data(period, period_name, user_id):
     if ms and ms[0].measurement_date.date() != now:
         ms.insert(0, Measurement(measurement_date=datetime(now.year, now.month, now.day), value=ms[0].value, user_id=user_id))
 
-    ms = fill_measurement_data_gaps(ms, p)
+    ms = _fill_measurement_data_gaps(ms, p)
     _calculate_diffs(ms)
     return MeasurementData(period_name, ms, period)

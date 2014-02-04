@@ -7,6 +7,7 @@ from sqlalchemy import desc
 from json import dumps
 from utils.utils import execute_command, copy_file_to_s3, set_current_dir, _remove_files
 from utils.batchhelpers import get_translations
+from utils.data import get_measurement_data
 from config import PERIODS
 
 
@@ -59,13 +60,13 @@ def get_measurements(user_id, limit):
     return ms
 
 
-def get_chart_data(ms):
+def convert_to_chart_data(ms):
     return [[m.measurement_date.strftime('%y-%m-%d'), m.value] for m in ms]
 
 
-def prepare_and_save_chart_content(chart_content_template, chart_fn, user_id, period, t):
-    measurements = get_measurements(user_id, period)
-    chart_data = get_chart_data(measurements)
+def prepare_and_save_chart_content(chart_content_template, chart_fn, user_id, period_key, t):
+    measurement_data = get_measurement_data(period_key, t.ugettext(period_key), user_id)
+    chart_data = convert_to_chart_data(sorted(measurement_data.data, key=lambda m: m.measurement_date))
     content = chart_content_template.replace('[CHART_DATA]', ', '.join(map(str, chart_data)))
 
     with open(chart_fn, mode='w') as dest_chart:
@@ -83,15 +84,15 @@ def save_chart_image(chart_fn, chart_img):
 
 
 def prepare_chart_images(user_id, t):
-    for p in period_lengths.keys():
-        chart_file = '{0}_{1}_{2}.html'.format(dest_timestamp, p, user_id)
-        chart_img = '{0}_{1}_{2}.png'.format(dest_timestamp, p, user_id)
+    for period_key, period_length in PERIODS.items():
+        chart_file = '{0}_{1}_{2}.html'.format(dest_timestamp, period_length, user_id)
+        chart_img = '{0}_{1}_{2}.png'.format(dest_timestamp, period_length, user_id)
         chart_template = _get_chart_template()
-        prepare_and_save_chart_content(chart_template, chart_file, user_id, p, t)
+        prepare_and_save_chart_content(chart_template, chart_file, user_id, period_key, t)
         save_chart_image(chart_file, chart_img)
 
         _remove_files(chart_file, chart_img)
-        print('P: {0} U: {1} complete'.format(p, user_id))
+        print('P: {0} U: {1} complete'.format(period_key, user_id))
 
 
 def _get_notification_mail_template():
