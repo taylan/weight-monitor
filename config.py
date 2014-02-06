@@ -19,7 +19,7 @@ def is_debug():
 
 
 def initialize_config(config_file_name='env.yaml'):
-    config_keys = ['DBSERVER', 'DBNAME', 'DBUSER', 'DBPASS', 'DBPORT', 'S3KEY', 'S3SECRET', 'S3BUCKET', 'S3REGION', 'MFPPASS', 'APPSECRET']
+    config_keys = ['DBSERVER', 'DBNAME', 'DBUSER', 'DBPASS', 'DBPORT', 'S3KEY', 'S3SECRET', 'S3BUCKET', 'S3REGION', 'MFPPASS', 'APPSECRET','ADMIN_USER']
     if contains(config_keys, list(environ.keys())):
         environ['DEBUG'] = 'False'
         return
