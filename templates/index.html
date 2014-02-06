@@ -1,5 +1,6 @@
 {% extends "layout.html" %}
 {% import 'measurement_list.html' as ml %}
+{% import 'admin_panel.html' as ap %}
 
 {% block page_title %}{{ measurement_data.title }}{% endblock %}
 {% block body %}
@@ -17,5 +18,6 @@
     </div>
 
     {{ ml.render_measurements(measurement_data) }}
+    {{ ap.render_admin_panel(impersonation_context) }}
 
 {% endblock %}

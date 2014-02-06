@@ -10,6 +10,7 @@ from werkzeug.exceptions import HTTPException
 from utils.formutils import write_errors_to_flash
 from utils.templatehelpers import url_for_lang, lang_name, get_translation
 from utils.data import get_measurement_data
+from utils.impersonation import ImpersonationContext
 from os import environ
 from passlib.hash import bcrypt
 from sqlalchemy.sql import exists
@@ -22,7 +23,6 @@ from flask.ext.assets import Environment, Bundle
 def get_send_file_max_age(self, name):
     return 31449600
 
-
 Flask.get_send_file_max_age = get_send_file_max_age
 
 app = Flask(__name__)
@@ -34,6 +34,8 @@ app.jinja_env.globals['url_for_lang'] = url_for_lang
 app.jinja_env.globals['lang_name'] = lang_name
 app.jinja_env.globals['get_translation'] = get_translation
 app.jinja_env.globals['LANGUAGES'] = LANGUAGES
+app.jinja_env.globals['ADMIN_USER'] = environ['ADMIN_USER']
+app.jinja_env.globals['impersonation_context'] = ImpersonationContext()
 app.secret_key = environ['APPSECRET']
 
 login_manager = LoginManager(app)
@@ -58,6 +60,11 @@ def get_locale():
 
 def _user_is_authenticated():
     return g.user and g.user.is_authenticated()
+
+
+def _current_user_id():
+    imp_context = app.jinja_env.globals['impersonation_context']
+    return imp_context.user_id if imp_context.is_impersonating else g.user.id
 
 
 @app.before_request
@@ -128,6 +135,18 @@ def register():
     return render_template('register.html', form=form)
 
 
+@app.route('/impersonate', methods=['POST'])
+def impersonate():
+    act = request.form.get('imp_action', '').lower()
+    email = request.form.get('imp_email', '')
+    if act not in ['stop', 'go'] or (act == 'go' and not email):
+        return redirect('/')
+
+    user = None if act == 'stop' else dbsession.query(User).filter(User.email == email).first()
+    app.jinja_env.globals['impersonation_context'] = ImpersonationContext(user.id, user.email) if user else ImpersonationContext()
+    return redirect('/')
+
+
 @app.route('/logout')
 @login_required
 def logout():
@@ -156,7 +175,7 @@ def save_measurement():
 @app.route('/p/<period>', methods=['GET'])
 @login_required
 def index(period='last-week'):
-    md = get_measurement_data(period, gettext(period), g.user.id)
+    md = get_measurement_data(period, gettext(period), _current_user_id())
     return render_template('index.html', measurement_data=md)
 
 

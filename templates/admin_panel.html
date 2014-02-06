@@ -1,0 +1,17 @@
+{% macro render_admin_panel(impersonation_context) %}
+    {% if g.user and g.user.is_authenticated() and g.user.email == ADMIN_USER %}
+        <form name="impersonation-form" id="impersonation-form" class="form-inline" role="form" method="post"
+              action="{{ url_for('impersonate') }}">
+            <div id="impersonation-panel"
+                 class="col-lg-6 col-md-6 col-sm-6 col-xs-12 col-lg-offset-3 col-md-offset-3 col-sm-offset-3 text-center form-group">
+                {% if impersonation_context.is_impersonating %}
+                    <strong>Imp:</strong> {{ impersonation_context.email }}
+                    <input type="submit" name="imp_action" value="Stop" class="btn btn-default btn-xs">
+                {% else %}
+                    <input class="form-control input-sm" type="email" name="imp_email" placeholder="Impersonate">
+                    <input type="submit" name="imp_action" value="Go" class="btn btn-default btn-xs">
+                {% endif %}
+            </div>
+        </form>
+    {% endif %}
+{% endmacro %}

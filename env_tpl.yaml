@@ -16,4 +16,4 @@ mfpconfig:
 
 appconfig:
   APPSECRET: --
-  APPURL: --
+  ADMIN_USER: --

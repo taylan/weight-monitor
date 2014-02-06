@@ -89,13 +89,20 @@ body {
     .visible-xs {
         display: inline !important;
     }
+
     .hidden-xs {
-        display: none!important;
+        display: none !important;
     }
 
     #report-period-selector .btn-sm {
         font-size: 11px;
         padding: 3px;
+    }
+
+    #impersonation-panel .form-control {
+        display: inline-block;
+        width: auto;
+        vertical-align: middle;
     }
 }
 
@@ -168,12 +175,16 @@ body {
 }
 
 @media (min-width: 767px) {
-        .hidden-xs {
+    .hidden-xs {
         display: inline !important;
     }
 }
 
 #report-period-selector {
     margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+#impersonation-panel {
     margin-bottom: 10px;
 }
