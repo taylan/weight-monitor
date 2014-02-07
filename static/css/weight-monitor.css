@@ -188,3 +188,7 @@ body {
 #impersonation-panel {
     margin-bottom: 10px;
 }
+
+#input-date {
+    cursor: pointer;
+}
