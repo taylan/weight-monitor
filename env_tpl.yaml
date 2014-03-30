@@ -16,4 +16,9 @@ mfpconfig:
 
 appconfig:
   APPSECRET: --
+  APPURL: --
   ADMIN_USER: --
+
+fitbitconfig:
+  FBCONSUMERKEY: --
+  FBCONSUMERSECRET: --

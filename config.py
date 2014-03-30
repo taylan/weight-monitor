@@ -4,7 +4,11 @@ from os import path, environ
 
 
 LANGUAGES = ['tr', 'en']
-PERIODS = {'last-week': 7, 'last-month': 30, 'last-year': 365, 'all-time': 100000}
+PERIODS = {
+    'last-week': 7,
+    'last-month': 30,
+    'last-year': 365,
+    'all-time': 100000}
 
 
 def contains(small, big):
@@ -19,12 +23,16 @@ def is_debug():
 
 
 def initialize_config(config_file_name='env.yaml'):
-    config_keys = ['DBSERVER', 'DBNAME', 'DBUSER', 'DBPASS', 'DBPORT', 'S3KEY', 'S3SECRET', 'S3BUCKET', 'S3REGION', 'MFPPASS', 'APPSECRET','ADMIN_USER']
+    config_keys = ['DBSERVER', 'DBNAME', 'DBUSER', 'DBPASS', 'DBPORT', 'S3KEY',
+                   'S3SECRET', 'S3BUCKET', 'S3REGION', 'MFPPASS', 'APPSECRET',
+                   'ADMIN_USER', 'FBCONSUMERKEY', 'FBCONSUMERSECRET']
+
     if contains(config_keys, list(environ.keys())):
         environ['DEBUG'] = 'False'
         return
 
-    config_file_path = path.join(path.dirname(path.abspath(__file__)), config_file_name)
+    config_file_path = path.join(path.dirname(path.abspath(__file__)),
+                                 config_file_name)
 
     if not path.exists(config_file_path):
         raise Exception('env.yaml required for config initialization')

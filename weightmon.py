@@ -4,8 +4,11 @@ from forms import LoginForm, RegisterForm
 from markupsafe import Markup
 from orm import dbsession, Measurement, User
 from config import is_debug, LANGUAGES, PERIODS
-from flask import Flask, render_template, request, jsonify, redirect, g, url_for, flash
-from flask.ext.login import LoginManager, current_user, login_user, logout_user, login_required
+from flask import (Flask, render_template, request, jsonify, redirect, g,
+                   url_for, flash, session)
+from flask.ext.login import (LoginManager, current_user, login_user,
+                             logout_user, login_required)
+from flask_oauthlib.client import OAuth
 from werkzeug.exceptions import HTTPException
 from utils.formutils import write_errors_to_flash
 from utils.templatehelpers import url_for_lang, lang_name, get_translation
@@ -18,6 +21,7 @@ from sqlalchemy import and_
 from flask.ext.compress import Compress
 from flask_babel import Babel, gettext
 from flask.ext.assets import Environment, Bundle
+import json
 
 
 def get_send_file_max_age(self, name):
@@ -41,16 +45,43 @@ app.secret_key = environ['APPSECRET']
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
+oauth = OAuth()
+fitbit_oauth = oauth.remote_app(
+    'fitbit',
+    base_url='https://api.fitbit.com/',
+    request_token_url='http://api.fitbit.com/oauth/request_token',
+    access_token_url='http://api.fitbit.com/oauth/access_token',
+    authorize_url='http://www.fitbit.com/oauth/authorize',
+    consumer_key=environ['FBCONSUMERKEY'],
+    consumer_secret=environ['FBCONSUMERSECRET']
+)
+oauth.init_app(app)
+
 Compress(app)
 babel = Babel(app)
 
 assets = Environment(app)
-assets.register('all_js', Bundle('js/jquery-2.0.3.min.js', 'js/bootstrap.min.js', 'js/picker.js', 'js/picker.date.js',
-                                 'js/bootstrap-editable.min.js', 'js/spin.min.js', 'js/ladda.min.js',
-                                 'js/weight-monitor.js', filters='rjsmin', output='gen/weightmon-packed.js'))
-assets.register('all_css', Bundle('css/bootstrap.min.css', 'css/pickadate.css', 'css/pickadate.date.css',
-                                  'css/bootstrap-editable.css', 'css/ladda-themeless.min.css', 'css/animate.min.css',
-                                  'css/weight-monitor.css', output='gen/weightmon-packed.css'))
+assets.register('all_js',
+                Bundle('js/jquery-2.0.3.min.js', 'js/bootstrap.min.js',
+                       'js/picker.js', 'js/picker.date.js',
+                       'js/bootstrap-editable.min.js', 'js/spin.min.js',
+                       'js/ladda.min.js', 'js/weight-monitor.js',
+                       filters='rjsmin', output='gen/weightmon-packed.js'))
+assets.register('all_css',
+                Bundle('css/bootstrap.min.css', 'css/pickadate.css',
+                       'css/pickadate.date.css', 'css/bootstrap-editable.css',
+                       'css/ladda-themeless.min.css', 'css/animate.min.css',
+                       'css/weight-monitor.css',
+                       output='gen/weightmon-packed.css'))
+
+
+@fitbit_oauth.tokengetter
+def get_fitbit_token(token=None):
+    oauth_data = json.loads(g.user.fitbit_oauth_data)
+    return (
+        oauth_data['oauth_token'],
+        oauth_data['oauth_token_secret']
+    )
 
 
 @babel.localeselector
@@ -90,6 +121,30 @@ def _verify_user(email, password):
 @login_manager.user_loader
 def load_user(user_id):
     return dbsession.query(User).filter(User.id == int(user_id)).first() or None
+
+
+@app.route('/fitbit_connect')
+def fitbit_connect():
+    if session.get('fitbit_token', None):
+        return redirect(url_for('index'))
+
+    return fitbit_oauth.authorize(callback=url_for('fitbit_authorized',
+                                                   _external=True))
+
+
+@app.route('/fitbit_oauth_callback')
+@fitbit_oauth.authorized_handler
+def fitbit_authorized(resp):
+    next_url = request.args.get('next') or url_for('index')
+    if resp is None:
+        flash('Fitbit connection request denied.', category='danger')
+        return redirect(next_url)
+
+    user = dbsession.query(User).filter(User.id == g.user.id).first()
+    user.fitbit_oauth_data = json.dumps(resp)
+    dbsession.commit()
+
+    return redirect(next_url)
 
 
 @app.route('/login', methods=['GET', 'POST'])

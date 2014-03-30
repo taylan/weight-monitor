@@ -18,6 +18,7 @@ class User(Base, UserMixin):
     email = Column(String(), nullable=False, index=True)
     password_hash = Column(String(), nullable=False)
     lang = Column(String())
+    fitbit_oauth_data = Column(String(length=200), nullable=True)
 
     @property
     def first_name(self):

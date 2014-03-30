@@ -1,4 +1,4 @@
-class MeasurementData(object):
+class MeasurementData():
     def __init__(self, title, data, period):
         self._title = title
         self._data = data
