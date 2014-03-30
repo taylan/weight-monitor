@@ -5,9 +5,11 @@ from requests import get, post
 
 def _get_weightbot_data():
     print('Getting Weightbot data (from weightbot_data.csv)')
-    with open(path.join(path.dirname(path.realpath(__file__)), '..', 'weight-data/weightbot_data.csv')) as wb_file:
+    with open(path.join(path.dirname(path.realpath(__file__)),
+                        '..', 'weight-data/weightbot_data.csv')) as wb_file:
         wb_data = wb_file.read().splitlines()
-        return [{'total': float(x.split(',')[1].strip()), 'date': datetime.strptime(x.split(',')[0], '%Y-%m-%d')} for x
+        return [{'total': float(x.split(',')[1].strip()),
+                 'date': datetime.strptime(x.split(',')[0], '%Y-%m-%d')} for x
                 in wb_data]
 
 

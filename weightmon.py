@@ -101,21 +101,26 @@ def _current_user_id():
 @app.before_request
 def before_request():
     g.user = current_user
-    g.lang = request.args.get('hl', request.cookies.get('lang', '')) or request.accept_languages.best_match(
+    g.lang = request.args.get('hl', request.cookies.get('lang', ''))\
+                 or request.accept_languages.best_match(
         LANGUAGES) or LANGUAGES[0]
-    login_manager.login_message = Markup(gettext('login_message').format('/register'))
+    login_manager.login_message = Markup(
+        gettext('login_message').format('/register'))
 
 
 @app.after_request
 def after_request(resp):
-    resp.set_cookie('lang', value=g.lang, expires=int((datetime.now() + timedelta(days=365)).timestamp()),
+    resp.set_cookie('lang', value=g.lang,
+                    expires=int((datetime.now() +
+                                 timedelta(days=365)).timestamp()),
                     httponly=True)
     return resp
 
 
 def _verify_user(email, password):
     u = dbsession.query(User).filter(User.email == email).first() or None
-    return (u if bcrypt.verify(password, u.password_hash) else None) if u else None
+    return (u if bcrypt.verify(password, u.password_hash) else None) \
+        if u else None
 
 
 @login_manager.user_loader
@@ -175,11 +180,14 @@ def register():
     if form.validate_on_submit():
         if dbsession.query(exists().where(User.email == form.email.data)).scalar():
             warning_markup = Markup(
-                'User with email %(email) already exists. Click <a href="%(login_link)">here</a> to login.',
+                'User with email %(email) already exists. '
+                'Click <a href="%(login_link)">here</a> to login.',
                 email=form.email.data, login_link=url_for('login'))
             flash(warning_markup, 'warning')
             return render_template('register.html', form=form)
-        user = User(name=form.name.data, email=form.email.data, password_hash=bcrypt.encrypt(form.password.data))
+        user = User(name=form.name.data,
+                    email=form.email.data,
+                    password_hash=bcrypt.encrypt(form.password.data))
         dbsession.add(user)
         dbsession.commit()
         login_user(user, remember=True)
@@ -197,8 +205,11 @@ def impersonate():
     if act not in ['stop', 'go'] or (act == 'go' and not email):
         return redirect('/')
 
-    user = None if act == 'stop' else dbsession.query(User).filter(User.email == email).first()
-    app.jinja_env.globals['impersonation_context'] = ImpersonationContext(user.id, user.email) if user else ImpersonationContext()
+    user = None if act == 'stop' else \
+        dbsession.query(User).filter(User.email == email).first()
+    app.jinja_env.globals['impersonation_context'] = \
+        ImpersonationContext(user.id,
+                             user.email) if user else ImpersonationContext()
     return redirect('/')
 
 
@@ -212,18 +223,27 @@ def logout():
 @app.route('/save', methods=['POST'])
 def save_measurement():
     try:
-        date_val = datetime.strptime(request.form.get('d', request.form.get('pk', '')), '%Y-%m-%d')
-        weight_val = float(request.form.get('v', request.form.get('value', '')).replace(',', '.'))
+        date_val = datetime.strptime(
+            request.form.get('d', request.form.get('pk', '')), '%Y-%m-%d')
+        value = request.form.get('value', '')
+        weight_val = float(request.form.get('v', value).replace(',', '.'))
     except (ValueError, HTTPException):
-        return jsonify({'r': False}) if request.headers.get('X-Requested-With', '') else redirect(request.referrer)
+        if request.headers.get('X-Requested-With', ''):
+            return jsonify({'r': False})
+        else:
+            return redirect(request.referrer)
 
     m = dbsession.query(Measurement).filter(
-        and_(Measurement.measurement_date == date_val, Measurement.user_id == current_user.id)).first() or Measurement(
-        measurement_date=date_val, user_id=current_user.id)
+        and_(Measurement.measurement_date ==
+             date_val, Measurement.user_id == current_user.id)).first() \
+        or Measurement(measurement_date=date_val, user_id=current_user.id)
     m.value = weight_val
     dbsession.add(m)
     dbsession.commit()
-    return jsonify({'r': True}) if request.headers.get('X-Requested-With', '') else redirect(request.referrer)
+    if request.headers.get('X-Requested-With', ''):
+        return jsonify({'r': True})
+    else:
+        return redirect(request.referrer)
 
 
 @app.route('/', methods=['GET'])

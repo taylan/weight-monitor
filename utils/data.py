@@ -28,12 +28,15 @@ def _fill_measurement_data_gaps(ms, p):
 
 def get_measurement_data(period, period_name, user_id):
     p = PERIODS.get(period, 7)
-    ms = dbsession.query(Measurement).filter(Measurement.user_id == user_id).order_by(
-        Measurement.measurement_date.desc()).limit(p).all()
+    ms = dbsession.query(Measurement).filter(Measurement.user_id == user_id)\
+        .order_by(Measurement.measurement_date.desc()).limit(p).all()
 
     now = datetime.now().date()
     if ms and ms[0].measurement_date.date() != now:
-        ms.insert(0, Measurement(measurement_date=datetime(now.year, now.month, now.day), value=ms[0].value, user_id=user_id))
+        ms.insert(0, Measurement(
+            measurement_date=datetime(now.year, now.month, now.day),
+            value=ms[0].value,
+            user_id=user_id))
 
     ms = _fill_measurement_data_gaps(ms, p)
     _calculate_diffs(ms)
