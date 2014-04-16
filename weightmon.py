@@ -1,7 +1,19 @@
 from datetime import datetime, timedelta
+import json
+from fitbit.exceptions import HTTPUnauthorized
+from os import environ
+
+from passlib.hash import bcrypt
+from sqlalchemy.sql import exists
+from sqlalchemy import and_
+from flask.ext.compress import Compress
+from flask_babel import Babel, gettext
+from flask.ext.assets import Environment, Bundle
+from markupsafe import Markup
+from werkzeug.exceptions import HTTPException
+import fitbit
 
 from forms import LoginForm, RegisterForm
-from markupsafe import Markup
 from orm import dbsession, Measurement, User
 from config import is_debug, LANGUAGES, PERIODS
 from flask import (Flask, render_template, request, jsonify, redirect, g,
@@ -9,23 +21,15 @@ from flask import (Flask, render_template, request, jsonify, redirect, g,
 from flask.ext.login import (LoginManager, current_user, login_user,
                              logout_user, login_required)
 from flask_oauthlib.client import OAuth
-from werkzeug.exceptions import HTTPException
 from utils.formutils import write_errors_to_flash
 from utils.templatehelpers import url_for_lang, lang_name, get_translation
 from utils.data import get_measurement_data
 from utils.impersonation import ImpersonationContext
-from os import environ
-from passlib.hash import bcrypt
-from sqlalchemy.sql import exists
-from sqlalchemy import and_
-from flask.ext.compress import Compress
-from flask_babel import Babel, gettext
-from flask.ext.assets import Environment, Bundle
-import json
 
 
 def get_send_file_max_age(self, name):
     return 31449600
+
 
 Flask.get_send_file_max_age = get_send_file_max_age
 
@@ -101,7 +105,7 @@ def _current_user_id():
 @app.before_request
 def before_request():
     g.user = current_user
-    g.lang = request.args.get('hl', request.cookies.get('lang', ''))\
+    g.lang = request.args.get('hl', request.cookies.get('lang', '')) \
                  or request.accept_languages.best_match(
         LANGUAGES) or LANGUAGES[0]
     login_manager.login_message = Markup(
@@ -178,7 +182,8 @@ def register():
 
     form = RegisterForm()
     if form.validate_on_submit():
-        if dbsession.query(exists().where(User.email == form.email.data)).scalar():
+        if dbsession.query(
+                exists().where(User.email == form.email.data)).scalar():
             warning_markup = Markup(
                 'User with email %(email) already exists. '
                 'Click <a href="%(login_link)">here</a> to login.',
@@ -218,6 +223,27 @@ def impersonate():
 def logout():
     logout_user()
     return redirect('/')
+
+
+def _save_to_fitbit(date, weight):
+    fbd = current_user.fitbit_oauth_data
+    if not fbd:
+        return
+
+    fbd_obj = json.loads(fbd)
+    try:
+        fb = fitbit.Fitbit(environ['FBCONSUMERKEY'],
+                           environ['FBCONSUMERSECRET'],
+                           resource_owner_key=fbd_obj['oauth_token'],
+                           resource_owner_secret=fbd_obj['oauth_token_secret'],
+                           system='en_UK')
+
+        fb.body(date=date, data={'weight': weight})
+    except HTTPUnauthorized:
+        flash('Fitbit oauth token expired.', category='danger')
+    except Exception as ex:
+        flash('Unexpected error while saving weight data to Fitbit.'
+              'Error: {0}'.format(ex), category='danger')
 
 
 @app.route('/save', methods=['POST'])
