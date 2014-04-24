@@ -1,14 +1,19 @@
-from sqlalchemy import create_engine, Column, DateTime, Float, Integer, String, ForeignKey
+from os import environ
+
+from flask.ext.login import UserMixin
+from sqlalchemy import (create_engine, Column, DateTime, Float, Integer,
+                        String, ForeignKey)
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from flask.ext.login import UserMixin
-from config import initialize_config, is_debug, LANGUAGES
-from os import environ
+
+from config import initialize_config, is_debug
+
 
 initialize_config()
 
 Base = declarative_base()
-engine = create_engine('postgresql://{DBUSER}:{DBPASS}@{DBSERVER}:{DBPORT}/{DBNAME}'.format(**environ), echo=is_debug())
+engine = create_engine('postgresql://{DBUSER}:{DBPASS}@{DBSERVER}'
+                       ':{DBPORT}/{DBNAME}'.format(**environ), echo=is_debug())
 
 
 class User(Base, UserMixin):
@@ -43,10 +48,14 @@ class Measurement(Base):
     user_id = Column(Integer, ForeignKey('user.id'), nullable=False, index=True)
 
     def __str__(self):
-        return '{0}: {1:.1f}kg'.format(self.measurement_date.strftime('%Y-%m-%d'), self.value)
+        return '{0}: {1:.1f}kg'. \
+            format(self.measurement_date.strftime('%Y-%m-%d'), self.value)
 
     def __repr__(self):
-        return '{0}({1}, {2:.1f}kg)'.format(self.__class__, self.measurement_date.strftime('%Y-%m-%d'), self.value)
+        return '{0}({1}, {2:.1f}kg)'. \
+            format(self.__class__,
+                   self.measurement_date.strftime('%Y-%m-%d'),
+                   self.value)
 
 
 Session = sessionmaker(bind=engine)
@@ -55,11 +64,16 @@ dbsession = Session()
 Base.metadata.create_all(engine)
 
 if dbsession.query(Measurement).count() == 0:
-    print('Measurement table is empty. Filling with data from Weightbot and MyFitnessPal.')
-    me = dbsession.query(User).filter(User.email == 'taylanaydinli@gmail.com').first()
+    print('Measurement table is empty. '
+          'Filling with data from Weightbot and MyFitnessPal.')
+    me = dbsession.query(User). \
+        filter(User.email == 'taylanaydinli@gmail.com').first()
     if not me:
-        me = User(email='taylanaydinli@gmail.com', name='Taylan Aydinli',
-                  password_hash='$2a$12$PTU7WoGEnIhiU/IVTHOon.JJ.satqyGFOmVhVslNLqdZbBugDaLzy')
+        phash = '$2a$12$PTU7WoGEnIhiU/IVTHOon.JJ.satqyGFOmVhVslNLqdZbBugDaLzy'
+        me = User(
+            email='taylanaydinli@gmail.com',
+            name='Taylan Aydinli',
+            password_hash=phash)
         dbsession.add(me)
         dbsession.commit()
 
@@ -67,5 +81,7 @@ if dbsession.query(Measurement).count() == 0:
     from utils.weightdataloader import get_weight_data
 
     for d in sorted(get_weight_data(), key=itemgetter('date')):
-        dbsession.add(Measurement(measurement_date=d['date'], value=d['total'], user_id=me.id))
+        dbsession.add(Measurement(measurement_date=d['date'],
+                                  value=d['total'],
+                                  user_id=me.id))
     dbsession.commit()
