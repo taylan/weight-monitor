@@ -17,6 +17,7 @@ awscli==1.2.10
 bcdoc==0.12.0
 botocore==0.30.0
 colorama==0.2.7
+distribute==0.7.3
 docutils==0.11
 fitbit==0.1.0
 gunicorn==18.0
@@ -24,6 +25,7 @@ itsdangerous==0.23
 jmespath==0.2.1
 oauthlib==0.6.1
 passlib==1.6.2
+pep8==1.5.6
 ply==3.4
 psycopg2==2.5.2
 py-bcrypt==0.4
