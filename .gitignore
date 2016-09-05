@@ -43,6 +43,7 @@ nosetests.xml
 
 # virtualenv
 _ENV
+ENV
 
 #webassets
 *.webassets-cache
