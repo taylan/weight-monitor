@@ -6,5 +6,5 @@ page.open(sourceFile, function () {
     window.setTimeout(function() {
         page.render(destFile);
         phantom.exit();
-    }, 2000);
+    }, 5000);
 });
