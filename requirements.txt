@@ -20,7 +20,7 @@ colorama==0.2.7
 distribute==0.7.3
 docutils==0.11
 fitbit==0.1.0
-gunicorn==18.0
+gunicorn==19.5.0
 itsdangerous==0.23
 jmespath==0.2.1
 oauthlib==0.6.1
