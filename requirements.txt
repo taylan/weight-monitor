@@ -6,7 +6,7 @@ Flask-Compress==1.0.0
 Flask-Login==0.2.9
 Flask-OAuthlib==0.4.3
 Flask-WTF==0.9.4
-Flask==0.10.1
+Flask==1.0
 Jinja2==2.7.1
 MarkupSafe==0.18
 PyYAML==3.10
