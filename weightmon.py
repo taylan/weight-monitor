@@ -1,26 +1,23 @@
 from datetime import datetime, timedelta
 import json
-from fitbit.exceptions import HTTPUnauthorized
 from os import environ
 
 from passlib.hash import bcrypt
 from sqlalchemy.sql import exists
 from sqlalchemy import and_
-from flask.ext.compress import Compress
+from flask_compress import Compress
 from flask_babel import Babel, gettext
-from flask.ext.assets import Environment, Bundle
+from flask_assets import Environment, Bundle
 from markupsafe import Markup
 from werkzeug.exceptions import HTTPException
-import fitbit
 
 from forms import LoginForm, RegisterForm
 from orm import dbsession, Measurement, User
 from config import is_debug, LANGUAGES, PERIODS
 from flask import (Flask, render_template, request, jsonify, redirect, g,
                    url_for, flash, session)
-from flask.ext.login import (LoginManager, current_user, login_user,
+from flask_login import (LoginManager, current_user, login_user,
                              logout_user, login_required)
-from flask_oauthlib.client import OAuth
 from utils.formutils import write_errors_to_flash
 from utils.templatehelpers import url_for_lang, lang_name, get_translation
 from utils.data import get_measurement_data
@@ -46,20 +43,9 @@ app.jinja_env.globals['ADMIN_USER'] = environ['ADMIN_USER']
 app.jinja_env.globals['impersonation_context'] = ImpersonationContext()
 app.secret_key = environ['APPSECRET']
 
-login_manager = LoginManager(app)
+login_manager = LoginManager()
+login_manager.init_app(app)
 login_manager.login_view = 'login'
-
-oauth = OAuth()
-fitbit_oauth = oauth.remote_app(
-    'fitbit',
-    base_url='https://api.fitbit.com/',
-    request_token_url='http://api.fitbit.com/oauth/request_token',
-    access_token_url='http://api.fitbit.com/oauth/access_token',
-    authorize_url='http://www.fitbit.com/oauth/authorize',
-    consumer_key=environ['FBCONSUMERKEY'],
-    consumer_secret=environ['FBCONSUMERSECRET']
-)
-oauth.init_app(app)
 
 Compress(app)
 babel = Babel(app)
@@ -79,22 +65,13 @@ assets.register('all_css',
                        output='gen/weightmon-packed.css'))
 
 
-@fitbit_oauth.tokengetter
-def get_fitbit_token(token=None):
-    oauth_data = json.loads(g.user.fitbit_oauth_data)
-    return (
-        oauth_data['oauth_token'],
-        oauth_data['oauth_token_secret']
-    )
-
-
 @babel.localeselector
 def get_locale():
     return g.lang
 
 
 def _user_is_authenticated():
-    return g.user and g.user.is_authenticated()
+    return g.user and g.user.is_authenticated
 
 
 def _current_user_id():
@@ -130,31 +107,6 @@ def _verify_user(email, password):
 @login_manager.user_loader
 def load_user(user_id):
     return dbsession.query(User).filter(User.id == int(user_id)).first() or None
-
-
-@app.route('/fitbit_connect')
-def fitbit_connect():
-    if session.get('fitbit_token', None):
-        return redirect(url_for('index'))
-
-    return fitbit_oauth.authorize(callback=url_for('fitbit_authorized',
-                                                   _external=True))
-
-
-@app.route('/fitbit_oauth_callback')
-@fitbit_oauth.authorized_handler
-def fitbit_authorized(resp):
-    next_url = request.args.get('next') or url_for('index')
-    if resp is None:
-        flash('Fitbit connection request denied.', category='danger')
-        return redirect(next_url)
-
-    user = dbsession.query(User).filter(User.id == g.user.id).first()
-    user.fitbit_oauth_data = json.dumps(resp)
-    dbsession.commit()
-
-    return redirect(next_url)
-
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -223,27 +175,6 @@ def impersonate():
 def logout():
     logout_user()
     return redirect('/')
-
-
-def _save_to_fitbit(date, weight):
-    fbd = current_user.fitbit_oauth_data
-    if not fbd:
-        return
-
-    fbd_obj = json.loads(fbd)
-    try:
-        fb = fitbit.Fitbit(environ['FBCONSUMERKEY'],
-                           environ['FBCONSUMERSECRET'],
-                           resource_owner_key=fbd_obj['oauth_token'],
-                           resource_owner_secret=fbd_obj['oauth_token_secret'],
-                           system='en_UK')
-
-        fb.body(date=date, data={'weight': weight})
-    except HTTPUnauthorized:
-        flash('Fitbit oauth token expired.', category='danger')
-    except Exception as ex:
-        flash('Unexpected error while saving weight data to Fitbit.'
-              'Error: {0}'.format(ex), category='danger')
 
 
 @app.route('/save', methods=['POST'])

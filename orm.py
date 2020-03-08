@@ -1,6 +1,6 @@
 from os import environ
 
-from flask.ext.login import UserMixin
+from flask_login import UserMixin
 from sqlalchemy import (create_engine, Column, DateTime, Float, Integer,
                         String, ForeignKey)
 from sqlalchemy.ext.declarative import declarative_base

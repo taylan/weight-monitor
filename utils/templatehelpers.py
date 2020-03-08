@@ -1,6 +1,6 @@
 from babel import Locale
 from flask import request, url_for
-from flask.ext.babel import gettext
+from flask_babel import gettext
 
 
 def url_for_lang(lang):
