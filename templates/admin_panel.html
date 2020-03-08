@@ -1,5 +1,5 @@
 {% macro render_admin_panel(impersonation_context) %}
-    {% if g.user and g.user.is_authenticated() and g.user.email == ADMIN_USER %}
+    {% if g.user and g.user.is_authenticated and g.user.email == ADMIN_USER %}
         <form name="impersonation-form" id="impersonation-form" class="form-inline" role="form" method="post"
               action="{{ url_for('impersonate') }}">
             <div id="impersonation-panel"
