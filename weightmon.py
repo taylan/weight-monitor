@@ -6,9 +6,9 @@ from os import environ
 from passlib.hash import bcrypt
 from sqlalchemy.sql import exists
 from sqlalchemy import and_
-from flask.ext.compress import Compress
+from flask_compress import Compress
 from flask_babel import Babel, gettext
-from flask.ext.assets import Environment, Bundle
+from flask_assets import Environment, Bundle
 from markupsafe import Markup
 from werkzeug.exceptions import HTTPException
 import fitbit
@@ -18,7 +18,7 @@ from orm import dbsession, Measurement, User
 from config import is_debug, LANGUAGES, PERIODS
 from flask import (Flask, render_template, request, jsonify, redirect, g,
                    url_for, flash, session)
-from flask.ext.login import (LoginManager, current_user, login_user,
+from flask_login import (LoginManager, current_user, login_user,
                              logout_user, login_required)
 from flask_oauthlib.client import OAuth
 from utils.formutils import write_errors_to_flash
